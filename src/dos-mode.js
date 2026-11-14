@@ -1,15 +1,17 @@
 /* Optional DOS-inspired command surface. Uses existing controls, local only. */
 (() => {
   'use strict';
-  const $ = (id) => document.getElementById(id),
-    bar = $('dosMenuBar'),
-    toggle = $('dosToggle'),
-    keys = $('dosKeys'),
-    help = $('dosHelp');
-  if (!bar || !toggle || !keys || !help) return;
-  const byID = (id) => () => $(id),
-    mode = (m) => () => document.querySelector(`[data-mode="${m}"]`),
-    tool = (t) => () => document.querySelector(`[data-tool="${t}"]`);
+  const $ = (id) => document.getElementById(id);
+  const bar = $('dosMenuBar');
+  const toggle = $('dosToggle');
+  const keys = $('dosKeys');
+  const help = $('dosHelp');
+  if (!bar || !toggle || !keys || !help) {
+    return;
+  }
+  const byID = (id) => () => $(id);
+  const mode = (m) => () => document.querySelector(`[data-mode="${m}"]`);
+  const tool = (t) => () => document.querySelector(`[data-tool="${t}"]`);
   const command = (label, target, key = '') => ({ label, target, key });
   const focusCommand = (label, panel, selector, key = '') => ({
     label,
@@ -17,6 +19,8 @@
     key,
   });
   // The five task names are documented; submenu grouping is a new reconstruction.
+  // Commands resolve existing modern controls lazily. Reusing their handlers
+  // keeps validation, undo checkpoints, and disabled states identical in both UIs.
   const defs = [
     [
       'Create',
@@ -106,16 +110,21 @@
       ],
     ],
   ];
-  let enabled = false,
-    active = -1,
-    origin = null,
-    helpOrigin = null;
+  let enabled = false;
+  let active = -1;
+  let origin = null;
+  let helpOrigin = null;
   const menus = [];
-  let fullscreenBusy = false,
-    ownsFullscreen = false;
+  // DOS mode is a layout state; browser fullscreen is independent and may fail.
+  // ownsFullscreen prevents leaving fullscreen that this interface did not enter.
+  let fullscreenBusy = false;
+  let ownsFullscreen = false;
   function screenStatus(message) {
-    if ($('dosScreenStatus')) $('dosScreenStatus').textContent = message;
+    if ($('dosScreenStatus')) {
+      $('dosScreenStatus').textContent = message;
+    }
   }
+
   function syncFullscreen() {
     const full = !!document.fullscreenElement;
     document.body.classList.toggle('dos-fullscreen', enabled && full);
@@ -129,8 +138,11 @@
       $('dosExitFullscreen').hidden = !full;
     }
   }
+
   async function enterFullscreen() {
-    if (fullscreenBusy || document.fullscreenElement) return;
+    if (fullscreenBusy || document.fullscreenElement) {
+      return;
+    }
     if (typeof document.documentElement?.requestFullscreen !== 'function') {
       screenStatus('Full screen is unavailable in this browser. DOS mode still fills the page.');
       return;
@@ -150,8 +162,11 @@
       syncFullscreen();
     }
   }
+
   async function exitFullscreen() {
-    if (fullscreenBusy || !document.fullscreenElement) return;
+    if (fullscreenBusy || !document.fullscreenElement) {
+      return;
+    }
     fullscreenBusy = true;
     syncFullscreen();
     try {
@@ -165,20 +180,31 @@
       syncFullscreen();
     }
   }
+
+  // A single data-dos-panel value controls transient windows in dos-mode.css.
+  // Showing a panel changes focus/layout only, never the presentation data.
   function focusPanel(panel, selector) {
     mode('create')()?.click();
     document.body.dataset.dosPanel = panel;
-    if ($('dosPanelClose')) $('dosPanelClose').hidden = panel === 'canvas';
+    if ($('dosPanelClose')) {
+      $('dosPanelClose').hidden = panel === 'canvas';
+    }
     const target = document.querySelector(selector);
     target?.focus();
     target?.scrollIntoView?.({ block: 'nearest' });
   }
+
   function closePanel() {
     document.body.dataset.dosPanel = 'canvas';
-    if ($('dosPanelClose')) $('dosPanelClose').hidden = true;
+    if ($('dosPanelClose')) {
+      $('dosPanelClose').hidden = true;
+    }
     $('canvas')?.focus();
-    if (typeof dosCanvasHint === 'function') dosCanvasHint();
+    if (typeof dosCanvasHint === 'function') {
+      dosCanvasHint();
+    }
   }
+
   function editable(el) {
     return (
       !!el &&
@@ -186,16 +212,22 @@
         !!el.closest('input, textarea, select, [contenteditable="true"], [contenteditable=""]'))
     );
   }
+
   function modal() {
     return !!document.querySelector('dialog[open]');
   }
+
   function consume(e) {
     e.preventDefault();
     e.stopImmediatePropagation();
   }
+
   function restore(el) {
-    if (el && el.isConnected && !el.disabled) el.focus();
+    if (el && el.isConnected && !el.disabled) {
+      el.focus();
+    }
   }
+
   function close(restoreOrigin = false) {
     const wasMenu = active >= 0 || bar.contains(document.activeElement);
     menus.forEach((m) => {
@@ -203,8 +235,13 @@
       m.trigger.setAttribute('aria-expanded', 'false');
     });
     active = -1;
-    if (restoreOrigin && wasMenu) restore(origin);
+    if (restoreOrigin && wasMenu) {
+      restore(origin);
+    }
   }
+
+  // Recheck targets each time a menu opens; selection/clipboard state may have
+  // changed since the command elements were constructed.
   function synchronize(m) {
     m.items.forEach(({ button, def }) => {
       const target = def.target?.();
@@ -212,15 +249,23 @@
       button.setAttribute('aria-disabled', String(button.disabled));
     });
   }
+
   function items(m) {
     return m.items.filter((x) => !x.button.disabled).map((x) => x.button);
   }
+
+  // Only one top-level task is in the Tab sequence; arrows move between tasks.
   function rove(index) {
     menus.forEach((m, i) => (m.trigger.tabIndex = i === index ? 0 : -1));
   }
+
   function open(index, edge = 0) {
-    if (!enabled || modal()) return;
-    if (!bar.contains(document.activeElement)) origin = document.activeElement;
+    if (!enabled || modal()) {
+      return;
+    }
+    if (!bar.contains(document.activeElement)) {
+      origin = document.activeElement;
+    }
     close();
     active = (index + menus.length) % menus.length;
     const m = menus[active];
@@ -237,49 +282,71 @@
     const available = items(m);
     (edge < 0 ? available.at(-1) : available[0])?.focus();
   }
+
   function invoke(def) {
     const target = def.target?.();
-    if (def.target && (!target || target.disabled)) return;
+    if (def.target && (!target || target.disabled)) {
+      return;
+    }
     close(true);
-    if (def.action) def.action();
-    else {
+    if (def.action) {
+      def.action();
+    } else {
       if (target.dataset.tool) {
         mode('create')()?.click();
         document.body.dataset.dosPanel = ['text', 'chart'].includes(target.dataset.tool)
           ? 'tools'
           : 'canvas';
-        if ($('dosPanelClose'))
+        if ($('dosPanelClose')) {
           $('dosPanelClose').hidden = document.body.dataset.dosPanel === 'canvas';
+        }
       }
       target.click();
     }
   }
+
   function showHelp() {
     close(true);
     helpOrigin = document.activeElement;
     help.showModal();
     $('dosHelpClose')?.focus();
   }
+
+  // Switch interfaces without recreating the editor or clearing its undo stack.
+  // Quit deliberately calls this path rather than resetting the project.
   function setEnabled(value) {
     close();
     enabled = !!value;
-    if (enabled && !document.body.dataset.dosPanel) document.body.dataset.dosPanel = 'canvas';
+    if (enabled && !document.body.dataset.dosPanel) {
+      document.body.dataset.dosPanel = 'canvas';
+    }
     document.body.classList.toggle('dos-mode', enabled);
     bar.hidden = keys.hidden = !enabled;
-    if ($('dosTitleBar')) $('dosTitleBar').hidden = !enabled;
-    if ($('dosPanelClose'))
+    if ($('dosTitleBar')) {
+      $('dosTitleBar').hidden = !enabled;
+    }
+    if ($('dosPanelClose')) {
       $('dosPanelClose').hidden = !enabled || document.body.dataset.dosPanel === 'canvas';
+    }
     toggle.setAttribute('aria-pressed', String(enabled));
     toggle.textContent = enabled ? 'Modern interface' : 'DOS interface';
-    if (enabled && !document.body.dataset.dosPanel) document.body.dataset.dosPanel = 'canvas';
-    if (!enabled && ownsFullscreen) exitFullscreen();
+    if (enabled && !document.body.dataset.dosPanel) {
+      document.body.dataset.dosPanel = 'canvas';
+    }
+    if (!enabled && ownsFullscreen) {
+      exitFullscreen();
+    }
     syncFullscreen();
-    if (!enabled && bar.contains(document.activeElement)) toggle.focus();
+    if (!enabled && bar.contains(document.activeElement)) {
+      toggle.focus();
+    }
     if (enabled) {
       closePanel();
       screenStatus('Keyboard mode: F10 menus, F1 help, Tab controls.');
     }
-    if (typeof studioInterfaceChanged === 'function') studioInterfaceChanged();
+    if (typeof studioInterfaceChanged === 'function') {
+      studioInterfaceChanged();
+    }
   }
   defs.forEach(([label, commands, action], i) => {
     const group = document.createElement('div');
@@ -291,7 +358,9 @@
     trigger.id = 'dosMenuTrigger' + i;
     trigger.tabIndex = i ? -1 : 0;
     trigger.setAttribute('role', 'menuitem');
-    if (!action) trigger.setAttribute('aria-haspopup', 'menu');
+    if (!action) {
+      trigger.setAttribute('aria-haspopup', 'menu');
+    }
     trigger.setAttribute('aria-expanded', 'false');
     trigger.setAttribute('aria-controls', 'dosPopup' + i);
     const popup = document.createElement('div');
@@ -321,7 +390,9 @@
       m.items.push({ button, def });
     }
     trigger.onpointerdown = () => {
-      if (!bar.contains(document.activeElement)) origin = document.activeElement;
+      if (!bar.contains(document.activeElement)) {
+        origin = document.activeElement;
+      }
     };
     trigger.onclick = () => (action ? action() : active === i ? close(true) : open(i));
     group.append(trigger, popup);
@@ -348,22 +419,35 @@
   const menuKey = document.createElement('span');
   menuKey.textContent = 'Keyboard mode · F10 Menus · F1 Help · Tab Controls · Esc Back';
   keys.append(menuKey);
-  for (const eventName of ['pointerdown', 'pointermove', 'pointerup'])
+  for (const eventName of ['pointerdown', 'pointermove', 'pointerup']) {
     $('canvas')?.addEventListener(
       eventName,
       (e) => {
-        if (!enabled) return;
+        if (!enabled) {
+          return;
+        }
         e.preventDefault();
         e.stopImmediatePropagation();
-        if (eventName === 'pointerdown') $('canvas').focus();
+        if (eventName === 'pointerdown') {
+          $('canvas').focus();
+        }
       },
       true,
     );
+  }
   toggle.onclick = () => setEnabled(!enabled);
-  if ($('dosModern')) $('dosModern').onclick = () => setEnabled(false);
-  if ($('dosPanelClose')) $('dosPanelClose').onclick = closePanel;
-  if ($('dosFullscreen')) $('dosFullscreen').onclick = enterFullscreen;
-  if ($('dosExitFullscreen')) $('dosExitFullscreen').onclick = exitFullscreen;
+  if ($('dosModern')) {
+    $('dosModern').onclick = () => setEnabled(false);
+  }
+  if ($('dosPanelClose')) {
+    $('dosPanelClose').onclick = closePanel;
+  }
+  if ($('dosFullscreen')) {
+    $('dosFullscreen').onclick = enterFullscreen;
+  }
+  if ($('dosExitFullscreen')) {
+    $('dosExitFullscreen').onclick = exitFullscreen;
+  }
   document.addEventListener('fullscreenchange', () => {
     syncFullscreen();
     if (!document.fullscreenElement) {
@@ -381,20 +465,31 @@
         consume(e);
         return;
       }
-      if (active >= 0 && !bar.contains(e.target)) close();
+      if (active >= 0 && !bar.contains(e.target)) {
+        close();
+      }
     },
     true,
   );
+  // detail > 0 identifies pointer-generated clicks. Keyboard activation and
+  // programmatic command forwarding must remain available in keyboard-only mode.
   document.addEventListener(
     'click',
     (e) => {
-      if (enabled && e.detail > 0) consume(e);
+      if (enabled && e.detail > 0) {
+        consume(e);
+      }
     },
     true,
   );
   bar.addEventListener('focusout', (e) => {
-    if (e.relatedTarget && !bar.contains(e.relatedTarget)) close();
+    if (e.relatedTarget && !bar.contains(e.relatedTarget)) {
+      close();
+    }
   });
+  // Capture-phase routing runs before app.js shortcuts. Editing controls, IME,
+  // and dialogs retain native keys; menu keys are consumed to avoid drawing.
+  // Keep this precedence when adding new shortcuts or modal interfaces.
   document.addEventListener(
     'keydown',
     (e) => {
@@ -411,14 +506,16 @@
         e.altKey ||
         modal() ||
         editable(e.target)
-      )
+      ) {
         return;
-      const focused = menus.findIndex((m) => m.trigger === document.activeElement),
-        inside = bar.contains(document.activeElement);
+      }
+      const focused = menus.findIndex((m) => m.trigger === document.activeElement);
+      const inside = bar.contains(document.activeElement);
       if (e.key === 'F10') {
         consume(e);
-        if (active >= 0 || inside) close(true);
-        else {
+        if (active >= 0 || inside) {
+          close(true);
+        } else {
           origin = document.activeElement;
           rove(0);
           menus[0].trigger.focus();
@@ -431,13 +528,14 @@
         return;
       }
       if (inside) {
-        const index = active >= 0 ? active : Math.max(0, focused),
-          m = menus[index];
+        const index = active >= 0 ? active : Math.max(0, focused);
+        const m = menus[index];
         if (['ArrowLeft', 'ArrowRight'].includes(e.key)) {
           consume(e);
           const next = (index + (e.key === 'ArrowRight' ? 1 : -1) + menus.length) % menus.length;
-          if (active >= 0) open(next);
-          else {
+          if (active >= 0) {
+            open(next);
+          } else {
             rove(next);
             menus[next].trigger.focus();
           }
@@ -450,11 +548,13 @@
               const n = e.key === 'Home' ? 0 : menus.length - 1;
               rove(n);
               menus[n].trigger.focus();
-            } else open(index, e.key === 'ArrowUp' ? -1 : 0);
+            } else {
+              open(index, e.key === 'ArrowUp' ? -1 : 0);
+            }
             return;
           }
-          const available = items(m),
-            current = available.indexOf(document.activeElement);
+          const available = items(m);
+          const current = available.indexOf(document.activeElement);
           let next =
             e.key === 'Home'
               ? 0
@@ -468,9 +568,14 @@
         if (e.key === 'Enter' || e.key === ' ') {
           consume(e);
           if (focused >= 0) {
-            if (menus[focused].action) menus[focused].action();
-            else open(focused);
-          } else document.activeElement?.click();
+            if (menus[focused].action) {
+              menus[focused].action();
+            } else {
+              open(focused);
+            }
+          } else {
+            document.activeElement?.click();
+          }
           return;
         }
         if (e.key === 'Tab') {
@@ -491,7 +596,9 @@
       }
       if (shortcuts[e.key]) {
         consume(e);
-        if (!e.repeat) invoke(shortcuts[e.key]);
+        if (!e.repeat) {
+          invoke(shortcuts[e.key]);
+        }
       }
     },
     true,

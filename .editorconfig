@@ -1,0 +1,27 @@
+root = true
+
+# First-party text only; upstream decoder/source archives retain original bytes.
+[{src,tools,tests,docs,.github}/**]
+charset = utf-8
+indent_style = space
+indent_size = 2
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+# Leading slash restricts these patterns to repository-root files.
+[/*.{json,md}]
+charset = utf-8
+indent_style = space
+indent_size = 2
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+[.editorconfig]
+charset = utf-8
+indent_style = space
+indent_size = 2
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true

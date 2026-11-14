@@ -1,4 +1,8 @@
-/* Optional CGA text-workstation skin. Raster palettes are not modified. */
+/* DOS interface overrides for the same controls styled in style.css.
+ * Order matters: base skin/menu rules come first, then viewport layout and final
+ * menu positioning. Keep later overrides after the base rules when editing.
+ * Raster palettes and presentation data are independent of this interface skin.
+ */
 [hidden] {
   display: none !important;
 }
@@ -313,7 +317,10 @@ body.dos-mode {
   font-family: inherit;
 }
 
-/* Immersive DOS application shell: one workspace, transient command windows. */
+/* Viewport layout. This also applies when the browser Fullscreen API is denied.
+ * dos-mode.js sets data-dos-panel to show one transient command window at a time.
+ * These rules intentionally replace the scrolling layout of the base skin above.
+ */
 body.dos-mode {
   height: 100dvh;
   overflow: hidden;
@@ -460,6 +467,7 @@ body.dos-mode {
 .dos-mode[data-dos-panel='palette'] .tools-panel,
 .dos-mode[data-dos-panel='library'] .library-panel,
 .dos-mode[data-dos-panel='motion'] .motion-panel,
+/* Panel visibility follows body.dataset.dosPanel; the editor state is shared. */
 .dos-mode[data-dos-panel='slides'] .filmstrip {
   display: block !important;
   position: fixed;

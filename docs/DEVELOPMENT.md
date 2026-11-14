@@ -63,7 +63,24 @@ npm run format:check
 npm test
 ```
 
-Formatting covers first-party JavaScript, HTML, CSS, tests, build tools, and workflow configuration. It excludes original vendor bytes, public source archives, screenshots, and generated output. The formatting check also runs in GitHub Actions. HTML formatting preserves whitespace-sensitive boundaries.
+Formatting covers first-party JavaScript, HTML, CSS, tests, build tools, and workflow configuration. It excludes original vendor bytes, public source archives, screenshots, and generated output. The formatting check also runs in GitHub Actions. HTML uses CSS-aware whitespace formatting, preserving inline text boundaries. `.editorconfig` supplies matching indentation and line endings for editors.
+
+Keep one variable declaration per statement in application code and use braces for conditionals and loops, including single-line bodies. Separate functions with blank lines. Prefer comments that explain units, ownership, ordering, or an algorithm's constraints over comments that repeat the next statement. `core.js` defines the shared raster, region, palette, motion, and slide data shapes in JSDoc. Public operations document mutation and copy behavior where it matters.
+
+## Maintaining behavior
+
+- **Editing and undo:** `app.js` owns the slide list and current selection. Call `checkpoint()` before modifying a slide, then obtain `current()` again: checkpointing detaches the current slide from the saved history. One pointer gesture gets one checkpoint. `copySlide()` copies mutable pixels, palettes, and motions; original native source bytes remain shared and immutable.
+- **Temporary state:** selections, pending placements, drag previews, keyboard cursors, menus, and the media library are separate from saved presentation data. Canvas decorations must never be written into the saved raster. The Run view has its own slide index.
+- **Geometry and time:** pixels are row-major indices in `0..3`, not RGB values. Rectangles use pixel counts for width/height and top-left coordinates. CSS scaling does not change the 320 × 200 slide grid. Motion delays and animation clocks use milliseconds; the UI and video duration controls expose seconds. Keep conversions at those boundaries.
+- **Animation:** capture all motion regions before removing any source pixels. Composite motions in list order. Trail coverage depends on traversed pixel positions, not the number of frames rendered; seeking backward resets the cached trail layers.
+- **Imports:** accumulate an import in memory and publish its accepted library together. The generation token prevents cancelled or superseded requests from publishing stale results. Keep limits across the entire nested import as well as within each archive reader. Scope TOC names to their containing directory/archive.
+- **Native files:** `execuvision.js` decodes the first raster; `core.js` writes it. Unknown native records are preserved when possible, not interpreted as verified palette or motion metadata. Consult [reconstruction notes](../public/RECONSTRUCTION.md) before changing offsets or claiming compatibility. Project JSON is the complete editable web save.
+- **Both interfaces:** DOS commands forward to existing controls and handlers. Preserve dialog/text-input precedence before shortcuts. `body.dataset.dosPanel` changes transient layout, not presentation data. Fullscreen ownership tracks whether DOS mode should exit browser fullscreen when returning to modern mode.
+- **Resource cleanup:** archive workers, Blob URLs, recorder tracks, event listeners, and timers have explicit owners. New cancellation or error paths must release the same resources as successful completion. Recording receives a detached slide snapshot.
+
+When tracing a feature, start with its control ID in `index.html`, find its handler in `app.js`, then follow reusable operations into `core.js`. For import/export issues, follow the relevant codec or archive reader. CSS section comments identify layouts and later overrides; retain cascade order unless intentionally changing appearance.
+
+## Validation
 
 `npm test` rebuilds first, then runs the standalone suites against `dist/`, so the tests exercise what is deployed. It does not require Prettier or historical media. The optional corpus check also builds first and needs locally supplied research samples plus Python:
 

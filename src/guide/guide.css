@@ -364,6 +364,7 @@ details p {
     gap: 72px;
   }
 }
+/* Collapse the table of contents before the article becomes too narrow. */
 @media (max-width: 1050px) {
   .page {
     grid-template-columns: 190px minmax(0, 1fr);
@@ -461,6 +462,7 @@ details p {
     scroll-behavior: auto;
   }
 }
+/* Print the full guide without sticky navigation or interactive decoration. */
 @media print {
   body {
     font-size: 11pt;

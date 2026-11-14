@@ -1,34 +1,55 @@
-// Browser controller: shared project state, canvas editing, media import, and presentation UI.
-// Pure drawing and project operations live in core.js; video recording lives in video.js.
-/* Browser-local work-alike. Native-format decisions are documented in RECONSTRUCTION.md. */
+/**
+ * Controller shared by the modern and DOS interfaces. EVStudio (aliased S)
+ * supplies pure raster/project operations; EVVideo owns recorder lifetimes.
+ *
+ * State changes follow: checkpoint -> mutate current slide -> refresh affected UI.
+ * Canvas overlays, drag previews, and selections are temporary interaction state;
+ * they must not leak into saved pixels. Native-format limits live in
+ * public/RECONSTRUCTION.md. Script order and DOM IDs are defined in index.html.
+ */
 'use strict';
-const S = EVStudio,
-  $ = (id) => document.getElementById(id),
-  canvas = $('canvas'),
-  ctx = canvas.getContext('2d');
-let slides = S.demo(),
-  index = 0,
-  title = 'A new way to present',
-  tool = 'pencil',
-  color = 3,
-  selection = null,
-  clipboard = null,
-  pending = null,
-  drag = null,
-  library = [],
-  dirty = false,
-  mode = 'create',
-  history = [],
-  future = [],
-  generation = 0;
+const S = EVStudio;
+const $ = (id) => document.getElementById(id);
+const canvas = $('canvas');
+const ctx = canvas.getContext('2d');
+
+// Persistent presentation state. Undo snapshots share untouched slides; use
+// checkpoint() before editing pixels, palette, names, order, or motion settings.
+let slides = S.demo();
+let index = 0;
+let title = 'A new way to present';
+let tool = 'pencil';
+let color = 3;
+
+// Transient interaction state: selection is a pixel rectangle; clipboard owns
+// a copied raster; pending is an uncommitted placement; drag describes a gesture.
+let selection = null;
+let clipboard = null;
+let pending = null;
+let drag = null;
+let library = [];
+let dirty = false;
+let mode = 'create';
+let history = [];
+let future = [];
+
+// Monotonic import token. A later import/clear/cancel invalidates older async work.
+let generation = 0;
+
+// DOS two-point tools remember the first corner until Enter completes it or
+// Esc/tool/slide changes cancel it. Cursor coordinates always use native pixels.
 let keyboardAnchor = null;
-let activeMotion = -1,
-  keyboard = { x: 160, y: 100 },
-  runIndex = 0,
-  auto = false,
-  runStart = 0,
-  runFrame = 0,
-  runAnimation = null;
+let activeMotion = -1;
+let keyboard = { x: 160, y: 100 };
+
+// Playback has its own slide index; advancing the show does not change the
+// selected editor slide. Video export from Run uses the playback index.
+let runIndex = 0;
+let auto = false;
+let runStart = 0;
+let runFrame = 0;
+let runAnimation = null;
+
 const toolDefs = [
   ['pencil', '✎', 'Pencil', 'P'],
   ['erase', '⌫', 'Erase', 'E'],
@@ -62,6 +83,8 @@ const rgbNames = [
 const current = () => slides[index];
 const palette = (s) =>
   ExecuVision.cgaPalette(s.palette.background, s.palette.family, s.palette.intensity);
+// Copy mutable values owned by a slide. Original source bytes are immutable
+// provenance, so snapshots can share that buffer without copying it again.
 const copySlide = (s) => ({
   ...s,
   pixels: s.pixels.slice(),
@@ -71,17 +94,30 @@ const copySlide = (s) => ({
 function status(s) {
   $('status').textContent = s;
 }
+
+/**
+ * Save the pre-edit state, discard redo, then detach the slide being edited.
+ * Callers must obtain current() after this call, rather than mutate an older
+ * reference that is now part of history. A whole pointer gesture uses one entry.
+ */
 function checkpoint() {
   history.push({ slides: slides.slice(), index, title });
-  if (history.length > 40) history.shift();
+  if (history.length > 40) {
+    history.shift();
+  }
   future = [];
   slides = slides.slice();
   slides[index] = copySlide(current());
   dirty = true;
   syncUndo();
 }
+
+// Undo and redo use the same stack transfer. Clear transient selection/placement
+// because those rectangles may refer to a slide state that no longer exists.
 function restore(from, to) {
-  if (!from.length) return;
+  if (!from.length) {
+    return;
+  }
   to.push({ slides: slides.slice(), index, title });
   const old = from.pop();
   slides = old.slides.slice();
@@ -93,16 +129,21 @@ function restore(from, to) {
   refresh();
   status('Presentation restored.');
 }
+
 function syncUndo() {
   $('undo').disabled = !history.length;
   $('redo').disabled = !future.length;
 }
+
 function paint(c, r, p = palette(current())) {
   const cx = c.getContext('2d');
   c.width = r.width;
   c.height = r.height;
   cx.putImageData(new ImageData(ExecuVision.rgba(r, p), r.width, r.height), 0, 0);
 }
+
+// Paint from slide data each time. Pending placements use a temporary raster;
+// selection borders and the keyboard cursor are canvas-only decorations.
 function render() {
   dosCanvasHint();
   const s = current();
@@ -134,6 +175,7 @@ function render() {
   }
   syncSelection();
 }
+
 function renderPalette() {
   const p = palette(current());
   $('swatches').replaceChildren(
@@ -155,6 +197,7 @@ function renderPalette() {
   $('paletteFamily').value = `${current().palette.family},${current().palette.intensity}`;
   $('background').value = current().palette.background;
 }
+
 function thumb(s) {
   const c = document.createElement('canvas');
   paint(c, s, palette(s));
@@ -172,8 +215,8 @@ function renderSlides() {
       b.setAttribute('aria-label', `Slide ${i + 1}: ${s.name}`);
       b.setAttribute('aria-current', String(i === index));
       b.append(thumb(s));
-      const label = document.createElement('span'),
-        n = document.createElement('b');
+      const label = document.createElement('span');
+      const n = document.createElement('b');
       n.textContent = String(i + 1).padStart(2, '0');
       label.append(n, document.createTextNode(s.name));
       b.append(label);
@@ -181,12 +224,16 @@ function renderSlides() {
       return b;
     }),
   );
-  if (mode === 'prepare') renderPrepare();
+  if (mode === 'prepare') {
+    renderPrepare();
+  }
 }
+
 function syncSelection() {
   const has = !!selection;
-  for (const id of ['copy', 'cut', 'deleteSelection', 'savePix', 'clearSelection'])
+  for (const id of ['copy', 'cut', 'deleteSelection', 'savePix', 'clearSelection']) {
     $(id).disabled = !has;
+  }
   $('paste').disabled = !clipboard;
   $('plotSelection').disabled = !has;
   $('selectionInfo').textContent = has
@@ -197,9 +244,12 @@ function syncSelection() {
   $('setMotion').textContent = activeMotion < 0 ? 'Add motion' : 'Update motion';
   $('removeMotion').disabled = activeMotion < 0;
 }
+
 function renderMotionList() {
   const motions = S.motionList(current());
-  if (activeMotion >= motions.length) activeMotion = -1;
+  if (activeMotion >= motions.length) {
+    activeMotion = -1;
+  }
   $('motionCount').textContent = motions.length + ' / ' + S.MAX_MOTIONS;
   $('motionList').replaceChildren(
     ...motions.map((m, i) => {
@@ -207,8 +257,8 @@ function renderMotionList() {
       b.className = 'motion-item' + (i === activeMotion ? ' active' : '');
       b.setAttribute('aria-pressed', String(i === activeMotion));
       b.setAttribute('aria-label', `Edit motion ${i + 1}: ${m.name || 'Motion ' + (i + 1)}`);
-      const name = document.createElement('strong'),
-        detail = document.createElement('span');
+      const name = document.createElement('strong');
+      const detail = document.createElement('span');
       name.textContent = `${i + 1}. ${m.name || 'Motion ' + (i + 1)}`;
       detail.textContent = `${m.width}×${m.height} · move ${m.dx}, ${m.dy} · speed ${m.speed} · start ${(m.delay || 0) / 1000}s${m.trail ? ' · trails' : ''}`;
       b.append(name, detail);
@@ -224,9 +274,14 @@ function renderMotionList() {
         : 'Select a picture region, then choose Add motion.';
   syncSelection();
 }
+
+// Selecting a motion restores its source rectangle and controls; it does not
+// add a motion or alter the raster until the user commits an edit.
 function editMotion(i) {
   const m = S.motionList(current())[i];
-  if (!m) return;
+  if (!m) {
+    return;
+  }
   activeMotion = i;
   pending = null;
   selection = { x: m.x, y: m.y, width: m.width, height: m.height };
@@ -240,6 +295,7 @@ function editMotion(i) {
   renderMotionList();
   status(`Editing ${m.name || 'motion ' + (i + 1)}. Its region is selected on the canvas.`);
 }
+
 function refresh() {
   render();
   renderPalette();
@@ -248,6 +304,7 @@ function refresh() {
   $('slideName').value = current().name;
   renderMotionList();
 }
+
 function selectSlide(i) {
   keyboardAnchor = null;
   index = S.clamp(i, 0, slides.length - 1);
@@ -255,6 +312,7 @@ function selectSlide(i) {
   activeMotion = -1;
   refresh();
 }
+
 function setTool(name) {
   keyboardAnchor = null;
   tool = name;
@@ -291,8 +349,12 @@ for (const [id, icon, label, key] of toolDefs) {
 }
 S.fontNames.forEach((name, i) => $('fontStyle').add(new Option(name, i)));
 rgbNames.forEach((n, i) => $('background').add(new Option(n, i)));
-for (let i = 1; i <= 9; i++) $('motionSpeed').add(new Option(i, i));
+for (let i = 1; i <= 9; i++) {
+  $('motionSpeed').add(new Option(i, i));
+}
 $('motionSpeed').value = 5;
+// CSS can scale the canvas (including DOS fullscreen). Convert pointer positions
+// back to the 320 x 200 grid before applying any drawing operation.
 function coords(e) {
   const b = canvas.getBoundingClientRect();
   return {
@@ -300,6 +362,8 @@ function coords(e) {
     y: S.clamp(Math.floor(((e.clientY - b.top) / b.height) * 200), 0, 199),
   };
 }
+
+// Pointer/keyboard corners are inclusive; add one when converting to pixel counts.
 function bounds(a, b) {
   return {
     x: Math.min(a.x, b.x),
@@ -308,21 +372,23 @@ function bounds(a, b) {
     height: Math.abs(a.y - b.y) + 1,
   };
 }
+
 function inside(p, b) {
   return b && p.x >= b.x && p.y >= b.y && p.x < b.x + b.width && p.y < b.y + b.height;
 }
 
 // Mouse and keyboard drawing
 function drawShape(r, start, end) {
-  const c = tool === 'erase' ? 0 : color,
-    size = Number($('brush').value);
-  if (tool === 'pencil' || tool === 'erase' || tool === 'line')
+  const c = tool === 'erase' ? 0 : color;
+  const size = Number($('brush').value);
+  if (tool === 'pencil' || tool === 'erase' || tool === 'line') {
     S.line(r, start.x, start.y, end.x, end.y, c, size);
-  else if (tool === 'rect' || tool === 'ellipse') {
+  } else if (tool === 'rect' || tool === 'ellipse') {
     const b = bounds(start, end);
     S[tool](r, b.x, b.y, b.width, b.height, c, $('filled').checked);
   }
 }
+
 function dosCanvasHint() {
   if (!document.body?.classList?.contains?.('dos-mode')) {
     const normal = {
@@ -356,10 +422,14 @@ function dosCanvasHint() {
     ? 'Arrows position the picture; Enter places it; Esc cancels.'
     : (labels[tool] || '') + ' Arrows move the cursor. Esc cancels.';
 }
+
 function studioInterfaceChanged() {
   keyboardAnchor = null;
   render();
 }
+
+// Enter first commits a pending paste, then handles two-corner tools, then
+// point tools. This mirrors mouse operations without synthesizing pointer events.
 function dosCanvasEnter() {
   const p = { ...keyboard };
   try {
@@ -414,8 +484,9 @@ function dosCanvasEnter() {
     checkpoint();
     selection = null;
     activeMotion = -1;
-    if (piece) S.blit(current(), piece, p.x, p.y, $('mix').checked);
-    else if (tool === 'text')
+    if (piece) {
+      S.blit(current(), piece, p.x, p.y, $('mix').checked);
+    } else if (tool === 'text') {
       S.text(
         current(),
         $('textValue').value,
@@ -425,22 +496,29 @@ function dosCanvasEnter() {
         Number($('fontSize').value),
         Number($('fontStyle').value),
       );
-    else if (tool === 'fill') S.fill(current(), p.x, p.y, color);
-    else drawShape(current(), p, p);
+    } else if (tool === 'fill') {
+      S.fill(current(), p.x, p.y, color);
+    } else {
+      drawShape(current(), p, p);
+    }
     refresh();
     status('Keyboard ' + tool + ' applied at ' + p.x + ', ' + p.y + '.');
   } catch (err) {
     status(err.message);
   }
 }
+
 function chartRaster(width = 180, height = 112) {
   return S.plot($('chartType').value, S.parsePlotData($('chartData').value), width, height);
 }
 $('plotSelection').onclick = () => {
-  if (!selection) return;
+  if (!selection) {
+    return;
+  }
   try {
-    if (selection.width < 60 || selection.height < 50)
+    if (selection.width < 60 || selection.height < 50) {
       throw Error('Choose an area at least 60 × 50 pixels so the graph is legible.');
+    }
     const plot = chartRaster(selection.width, selection.height);
     checkpoint();
     S.blit(current(), plot, selection.x, selection.y, false);
@@ -457,8 +535,12 @@ $('plotExample').onclick = () => {
   status('Price-components data ready. Choose an area or click the canvas to plot.');
 };
 
+// One checkpoint begins each modifying gesture. Store its starting bitmap so
+// shape/move previews can be redrawn without accumulating intermediate marks.
 canvas.addEventListener('pointerdown', (e) => {
-  if (e.button !== 0) return;
+  if (e.button !== 0) {
+    return;
+  }
   e.preventDefault();
   canvas.focus();
   canvas.setPointerCapture(e.pointerId);
@@ -488,8 +570,8 @@ canvas.addEventListener('pointerdown', (e) => {
     }
     if (tool === 'select') {
       if (inside(p, selection)) {
-        const b = { ...selection },
-          piece = S.crop(current(), b);
+        const b = { ...selection };
+        const piece = S.crop(current(), b);
         checkpoint();
         S.rect(current(), b.x, b.y, b.width, b.height, 0, true);
         drag = { start: p, base: current().pixels.slice(), piece, box: b, moving: true };
@@ -506,8 +588,9 @@ canvas.addEventListener('pointerdown', (e) => {
     if (tool === 'text' || tool === 'chart') {
       const piece = tool === 'chart' ? chartRaster() : null;
       checkpoint();
-      if (piece) S.blit(current(), piece, p.x, p.y, $('mix').checked);
-      else
+      if (piece) {
+        S.blit(current(), piece, p.x, p.y, $('mix').checked);
+      } else {
         S.text(
           current(),
           $('textValue').value,
@@ -517,6 +600,7 @@ canvas.addEventListener('pointerdown', (e) => {
           Number($('fontSize').value),
           Number($('fontStyle').value),
         );
+      }
       selection = null;
       refresh();
       status(tool === 'text' ? 'Text placed.' : 'PLOT generated the graph.');
@@ -537,6 +621,8 @@ canvas.addEventListener('pointerdown', (e) => {
     status(err.message);
   }
 });
+// Pencil/erase accumulate strokes; geometric shapes and moved selections
+// restore the gesture baseline on every move. Selection-only gestures do not edit.
 canvas.addEventListener('pointermove', (e) => {
   const p = coords(e);
   $('coords').textContent = `X ${String(p.x).padStart(3, '0')} / Y ${String(p.y).padStart(3, '0')}`;
@@ -546,10 +632,13 @@ canvas.addEventListener('pointermove', (e) => {
     render();
     return;
   }
-  if (!drag) return;
+  if (!drag) {
+    return;
+  }
   keyboard = p;
-  if (drag.selecting) selection = bounds(drag.start, p);
-  else if (drag.moving) {
+  if (drag.selecting) {
+    selection = bounds(drag.start, p);
+  } else if (drag.moving) {
     current().pixels = drag.base.slice();
     selection = {
       ...drag.box,
@@ -558,19 +647,29 @@ canvas.addEventListener('pointermove', (e) => {
     };
     S.blit(current(), drag.piece, selection.x, selection.y, $('mix').checked);
   } else {
-    if (tool !== 'pencil' && tool !== 'erase') current().pixels = drag.base.slice();
+    if (tool !== 'pencil' && tool !== 'erase') {
+      current().pixels = drag.base.slice();
+    }
     drawShape(current(), tool === 'pencil' || tool === 'erase' ? drag.last : drag.start, p);
     drag.last = p;
   }
   render();
 });
+// Finish pointer-up, cancellation, and capture loss through the same path.
+// Moving a selected motion also moves its source region within the same undo step.
 function endDrag() {
-  if (!drag) return;
+  if (!drag) {
+    return;
+  }
   const moved = !drag.selecting;
-  if (drag.moving && activeMotion >= 0) Object.assign(current().motions[activeMotion], selection);
+  if (drag.moving && activeMotion >= 0) {
+    Object.assign(current().motions[activeMotion], selection);
+  }
   drag = null;
   render();
-  if (moved) renderSlides();
+  if (moved) {
+    renderSlides();
+  }
   renderMotionList();
 }
 canvas.addEventListener('pointerup', endDrag);
@@ -581,13 +680,17 @@ canvas.addEventListener('focus', render);
 $('undo').onclick = () => restore(history, future);
 $('redo').onclick = () => restore(future, history);
 $('copy').onclick = () => {
-  if (!selection) return;
+  if (!selection) {
+    return;
+  }
   clipboard = S.crop(current(), selection);
   syncSelection();
   status(`Copied ${clipboard.width} × ${clipboard.height} pixels.`);
 };
 $('cut').onclick = () => {
-  if (!selection) return;
+  if (!selection) {
+    return;
+  }
   $('copy').onclick();
   checkpoint();
   S.rect(current(), selection.x, selection.y, selection.width, selection.height, 0, true);
@@ -595,7 +698,9 @@ $('cut').onclick = () => {
   status('Picture cut. Choose Paste and click to place it.');
 };
 $('paste').onclick = () => {
-  if (!clipboard) return;
+  if (!clipboard) {
+    return;
+  }
   pending = { raster: S.clone(clipboard), x: selection?.x ?? 20, y: selection?.y ?? 20 };
   selection = null;
   activeMotion = -1;
@@ -604,7 +709,9 @@ $('paste').onclick = () => {
   status('Click the canvas to place the picture. Escape cancels.');
 };
 $('deleteSelection').onclick = () => {
-  if (!selection) return;
+  if (!selection) {
+    return;
+  }
   checkpoint();
   S.rect(current(), selection.x, selection.y, selection.width, selection.height, 0, true);
   selection = null;
@@ -699,8 +806,11 @@ function renderPrepare() {
         b.onclick = () => {
           checkpoint();
           [slides[i], slides[i + delta]] = [slides[i + delta], slides[i]];
-          if (index === i) index += delta;
-          else if (index === i + delta) index = i;
+          if (index === i) {
+            index += delta;
+          } else if (index === i + delta) {
+            index = i;
+          }
           refresh();
         };
         row.append(b);
@@ -718,6 +828,7 @@ function renderPrepare() {
     }),
   );
 }
+
 function setMode(m) {
   if (m === 'run') {
     startRun();
@@ -733,7 +844,9 @@ function setMode(m) {
     .forEach((b) => b.classList.toggle('active', b.dataset.mode === m));
   $('workspace').hidden = m !== 'create';
   $('prepareView').hidden = m !== 'prepare';
-  if (m === 'prepare') renderPrepare();
+  if (m === 'prepare') {
+    renderPrepare();
+  }
 }
 document
   .querySelectorAll('[data-mode]')
@@ -752,15 +865,22 @@ $('newMotion').onclick = () => {
   status('Drag a box around another graphic, then choose Add motion.');
 };
 $('setMotion').onclick = () => {
-  if (!selection) return;
+  if (!selection) {
+    return;
+  }
   try {
     const motions = S.motionList(current());
-    if (activeMotion < 0 && motions.length >= S.MAX_MOTIONS)
+    if (activeMotion < 0 && motions.length >= S.MAX_MOTIONS) {
       throw Error('This slide has reached its 32-motion limit.');
+    }
     const delayText = $('motionDelay').value;
-    if (delayText.trim() === '') throw Error('Enter a start time in seconds.');
+    if (delayText.trim() === '') {
+      throw Error('Enter a start time in seconds.');
+    }
     const delay = Number(delayText) * 1000;
-    if (!Number.isFinite(delay)) throw Error('Enter a valid start time.');
+    if (!Number.isFinite(delay)) {
+      throw Error('Enter a valid start time.');
+    }
     const motion = S.validateMotion(
       {
         ...selection,
@@ -777,8 +897,9 @@ $('setMotion').onclick = () => {
     );
     const editing = activeMotion >= 0;
     checkpoint();
-    if (editing) current().motions[activeMotion] = motion;
-    else {
+    if (editing) {
+      current().motions[activeMotion] = motion;
+    } else {
       current().motions.push(motion);
       activeMotion = current().motions.length - 1;
     }
@@ -790,7 +911,9 @@ $('setMotion').onclick = () => {
   }
 };
 $('removeMotion').onclick = () => {
-  if (activeMotion < 0) return;
+  if (activeMotion < 0) {
+    return;
+  }
   checkpoint();
   current().motions.splice(activeMotion, 1);
   activeMotion = -1;
@@ -802,8 +925,8 @@ $('previewMotion').onclick = () => startRun();
 
 // Project downloads and original-media import
 function download(bytes, name, type = 'application/octet-stream') {
-  const url = URL.createObjectURL(new Blob([bytes], { type })),
-    a = document.createElement('a');
+  const url = URL.createObjectURL(new Blob([bytes], { type }));
+  const a = document.createElement('a');
   a.href = url;
   a.download = name;
   a.click();
@@ -818,9 +941,13 @@ $('saveProject').onclick = () => {
 $('openProject').onclick = () => $('projectFile').click();
 $('projectFile').onchange = async (e) => {
   const f = e.target.files[0];
-  if (!f) return;
+  if (!f) {
+    return;
+  }
   try {
-    if (f.size > 32 * 1024 * 1024) throw Error('Project exceeds 32 MiB');
+    if (f.size > 32 * 1024 * 1024) {
+      throw Error('Project exceeds 32 MiB');
+    }
     const p = S.readProject(await f.text());
     checkpoint();
     slides = p.slides;
@@ -862,14 +989,18 @@ $('exportEV').onclick = () => {
   }
 };
 $('savePix').onclick = () => {
-  if (!selection) return;
+  if (!selection) {
+    return;
+  }
   download(S.encodeEV(S.crop(current(), selection), 2), 'PIX001.EV');
   status('Selection exported as PIX001.EV. Palette settings remain in the project.');
 };
 $('exportPNG').onclick = () => {
   const c = thumb(current());
   c.toBlob((b) => {
-    if (b) download(b, safeName(current().name) + '.png', 'image/png');
+    if (b) {
+      download(b, safeName(current().name) + '.png', 'image/png');
+    }
   }, 'image/png');
 };
 $('exportDeck').onclick = () => {
@@ -900,7 +1031,9 @@ function libraryRender() {
   const q = $('librarySearch').value.toLowerCase().trim();
   $('libraryCount').textContent = String(library.length).padStart(2, '0');
   $('clearLibrary').hidden = !library.length;
-  if (!library.length) return;
+  if (!library.length) {
+    return;
+  }
   const entries = library.filter((e) => (e.title + ' ' + e.path).toLowerCase().includes(q));
   const cards = entries.slice(0, 100).map((e) => {
     const a = document.createElement('article');
@@ -912,19 +1045,19 @@ function libraryRender() {
     const meta = document.createElement('small');
     meta.textContent = `${e.decoded.kind === 1 ? 'SLIDE' : 'PIX'} / ${e.decoded.width}×${e.decoded.height} / ${e.path}`;
     a.append(c, name, meta);
-    const controls = document.createElement('div'),
-      add = document.createElement('button'),
-      place = document.createElement('button');
+    const controls = document.createElement('div');
+    const add = document.createElement('button');
+    const place = document.createElement('button');
     add.textContent = '＋ Slide';
     add.title = 'Add this graphic as a new slide';
     add.onclick = () => {
-      const d = e.decoded,
-        s = {
-          ...S.raster(),
-          name: e.title,
-          palette: { ...current().palette },
-          source: d.kind === 1 && d.width === 320 && d.height === 200 ? e.bytes : null,
-        };
+      const d = e.decoded;
+      const s = {
+        ...S.raster(),
+        name: e.title,
+        palette: { ...current().palette },
+        source: d.kind === 1 && d.width === 320 && d.height === 200 ? e.bytes : null,
+      };
       S.blit(s, d, 0, 0);
       addSlide(s);
       setMode('create');
@@ -977,46 +1110,75 @@ $('cancelImport').onclick = () => {
   $('importProgress').hidden = true;
   status('Import cancelled. Previous library retained.');
 };
+/**
+ * Stage an import entirely in memory, then replace the library only if readable
+ * graphics were found and this is still the newest request. Existing slides are
+ * independent of the library. Bounds apply across nested containers, not just
+ * to each individual file; recoverable per-file errors are collected for the UI.
+ */
 async function importMedia(files) {
   const mine = ++generation;
   EVSevenZip.cancel();
   $('importProgress').hidden = false;
   $('importReport').hidden = true;
   status('Reading original media on this device…');
-  const entries = [],
-    errors = [],
-    tables = new Map(),
-    counts = new Map();
-  let total = 0,
-    expanded = 0;
+  const entries = [];
+  const errors = [];
+  const tables = new Map();
+  const counts = new Map();
+  let total = 0;
+  let expanded = 0;
   try {
-    if (files.length > 500) throw Error('Choose no more than 500 input files.');
+    if (files.length > 500) {
+      throw Error('Choose no more than 500 input files.');
+    }
     for (const f of files) {
       total += f.size;
-      if (total > 64 * 1024 * 1024) throw Error('Input batch exceeds 64 MiB.');
+      if (total > 64 * 1024 * 1024) {
+        throw Error('Input batch exceeds 64 MiB.');
+      }
     }
     async function expand(name, bytes, depth = 0) {
-      if (mine !== generation) throw Error('Import cancelled.');
+      if (mine !== generation) {
+        throw Error('Import cancelled.');
+      }
       expanded += bytes.length;
-      if (expanded > 128 * 1024 * 1024) throw Error('Expanded import exceeds 128 MiB.');
+      if (expanded > 128 * 1024 * 1024) {
+        throw Error('Expanded import exceeds 128 MiB.');
+      }
       if (/\.(ev|toc)$/i.test(name)) {
-        if (bytes.length > 1024 * 1024) throw Error('EV/TOC file exceeds 1 MiB.');
-        if (entries.length >= 600) throw Error('Too many EV/TOC entries.');
+        if (bytes.length > 1024 * 1024) {
+          throw Error('EV/TOC file exceeds 1 MiB.');
+        }
+        if (entries.length >= 600) {
+          throw Error('Too many EV/TOC entries.');
+        }
         entries.push({ name, bytes });
         return;
       }
-      if (depth > 2) throw Error('Archive nesting exceeds two levels.');
+      if (depth > 2) {
+        throw Error('Archive nesting exceeds two levels.');
+      }
       let children;
-      if (/\.zip$/i.test(name)) children = await EVZip.read(bytes);
-      else if (/\.7z$/i.test(name)) children = await EVSevenZip.read(bytes);
-      else if (/\.img$/i.test(name)) children = S.diskFiles(bytes);
-      else return;
-      for (const child of children)
-        if (/\.(ev|toc|zip|img)$/i.test(child.name))
+      if (/\.zip$/i.test(name)) {
+        children = await EVZip.read(bytes);
+      } else if (/\.7z$/i.test(name)) {
+        children = await EVSevenZip.read(bytes);
+      } else if (/\.img$/i.test(name)) {
+        children = S.diskFiles(bytes);
+      } else {
+        return;
+      }
+      for (const child of children) {
+        if (/\.(ev|toc|zip|img)$/i.test(child.name)) {
           await expand(name + '!/' + child.name, child.bytes, depth + 1);
+        }
+      }
     }
     for (const f of files) {
-      if (mine !== generation) return;
+      if (mine !== generation) {
+        return;
+      }
       try {
         if (!/\.(ev|toc|zip|7z|img)$/i.test(f.name)) {
           errors.push(`${f.name}: unsupported type.`);
@@ -1027,33 +1189,46 @@ async function importMedia(files) {
         errors.push(f.name + ': ' + e.message);
       }
     }
-    if (mine !== generation) return;
+    if (mine !== generation) {
+      return;
+    }
+    // Names are scoped to the containing directory/archive. Duplicate TOCs or EV
+    // filenames must not silently attach an unrelated title from another disk.
     for (const e of entries) {
-      const slash = e.name.lastIndexOf('/'),
-        scope = e.name.slice(0, slash + 1),
-        name = e.name.slice(slash + 1).toUpperCase();
+      const slash = e.name.lastIndexOf('/');
+      const scope = e.name.slice(0, slash + 1);
+      const name = e.name.slice(slash + 1).toUpperCase();
       e.scope = scope;
       e.basename = name;
       const key = scope + '|' + name;
       if (/\.TOC$/.test(name)) {
-        if (name !== 'EVSLIDE.TOC' && name !== 'EVPIX.TOC') continue;
+        if (name !== 'EVSLIDE.TOC' && name !== 'EVPIX.TOC') {
+          continue;
+        }
         if (tables.has(key)) {
           tables.set(key, null);
           errors.push(`${e.name}: duplicate table; names disabled.`);
-        } else tables.set(key, S.parseToc(e.bytes));
-      } else counts.set(key, (counts.get(key) || 0) + 1);
+        } else {
+          tables.set(key, S.parseToc(e.bytes));
+        }
+      } else {
+        counts.set(key, (counts.get(key) || 0) + 1);
+      }
     }
     const accepted = [];
     for (const e of entries) {
-      if (!/\.EV$/i.test(e.name)) continue;
+      if (!/\.EV$/i.test(e.name)) {
+        continue;
+      }
       if (accepted.length >= 500) {
         errors.push('500-graphic limit reached.');
         break;
       }
       try {
-        const d = ExecuVision.decodeEV(e.bytes),
-          m = /^(SLIDE|PIX)(\d+)\.EV$/.exec(e.basename),
-          table = m && tables.get(e.scope + '|' + (m[1] === 'PIX' ? 'EVPIX.TOC' : 'EVSLIDE.TOC'));
+        const d = ExecuVision.decodeEV(e.bytes);
+        const m = /^(SLIDE|PIX)(\d+)\.EV$/.exec(e.basename);
+        const table =
+          m && tables.get(e.scope + '|' + (m[1] === 'PIX' ? 'EVPIX.TOC' : 'EVSLIDE.TOC'));
         accepted.push({
           bytes: e.bytes,
           decoded: d,
@@ -1066,10 +1241,12 @@ async function importMedia(files) {
         errors.push(e.name + ': ' + err.message);
       }
     }
-    if (!accepted.length)
+    if (!accepted.length) {
       throw Error(
         'No readable EV graphics found. Include EV files, a graphics disk ZIP, or a raw DOS disk image.',
       );
+    }
+    // Publish one complete result. Failed/cancelled imports keep the old library.
     library = accepted;
     $('librarySearch').value = '';
     libraryRender();
@@ -1102,20 +1279,28 @@ document.addEventListener('dragenter', (e) => {
   }
 });
 document.addEventListener('dragover', (e) => {
-  if (e.dataTransfer?.types.includes('Files')) e.preventDefault();
+  if (e.dataTransfer?.types.includes('Files')) {
+    e.preventDefault();
+  }
 });
 document.addEventListener('dragleave', () => {
-  if (--dropDepth <= 0) $('dropOverlay').hidden = true;
+  if (--dropDepth <= 0) {
+    $('dropOverlay').hidden = true;
+  }
 });
 document.addEventListener('drop', (e) => {
-  if (!e.dataTransfer?.files.length) return;
+  if (!e.dataTransfer?.files.length) {
+    return;
+  }
   e.preventDefault();
   dropDepth = 0;
   $('dropOverlay').hidden = true;
   const files = Array.from(e.dataTransfer.files);
   if (files.length === 1 && /\.(evstudio|json)$/i.test(files[0].name)) {
     status('Use Open project for .evstudio files.');
-  } else importMedia(files);
+  } else {
+    importMedia(files);
+  }
 });
 function resetSkip() {
   const remaining = slides.length - 1 - runIndex;
@@ -1125,11 +1310,16 @@ function resetSkip() {
   $('runSkipStatus').textContent = '';
   $('runSkipCount').setAttribute('aria-invalid', 'false');
 }
+
+// This control advances by a relative number of positions, not an absolute
+// slide number. Validate against remaining slides before changing playback state.
 function skipRun() {
-  if (!$('runDialog').open) return;
-  const raw = $('runSkipCount').value.trim(),
-    count = Number(raw),
-    remaining = slides.length - 1 - runIndex;
+  if (!$('runDialog').open) {
+    return;
+  }
+  const raw = $('runSkipCount').value.trim();
+  const count = Number(raw);
+  const remaining = slides.length - 1 - runIndex;
   if (!/^\d+$/.test(raw) || !Number.isSafeInteger(count) || count < 1 || count > remaining) {
     $('runSkipStatus').textContent = remaining
       ? `Enter a whole number from 1 to ${remaining}.`
@@ -1146,7 +1336,9 @@ $('runSkip').onclick = skipRun;
 $('runSkipCount').addEventListener('keydown', (e) => {
   if (e.key === 'Enter' && !e.isComposing) {
     e.preventDefault();
-    if (!e.repeat) skipRun();
+    if (!e.repeat) {
+      skipRun();
+    }
   }
 });
 
@@ -1160,6 +1352,8 @@ function startRun() {
   $('autoRun').textContent = '▶ Auto run';
   $('autoRun').classList.remove('active');
 }
+
+// Every slide boundary starts a fresh animation clock and trail cache.
 function resetRun() {
   resetSkip();
   runStart = performance.now();
@@ -1169,8 +1363,11 @@ function resetRun() {
   $('prevRun').disabled = runIndex === 0;
   $('nextRun').disabled = runIndex === slides.length - 1;
 }
+
 function frame(now) {
-  if (!$('runDialog').open) return;
+  if (!$('runDialog').open) {
+    return;
+  }
   const s = slides[runIndex];
   paint($('runCanvas'), runAnimation.frame(now - runStart), palette(s));
   if (auto && now - runStart >= Number($('interval').value) * 1000) {
@@ -1185,12 +1382,17 @@ function frame(now) {
   }
   runFrame = requestAnimationFrame(frame);
 }
+
 function closeRun() {
   resetSkip();
   cancelAnimationFrame(runFrame);
   auto = false;
-  if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
-  if ($('runDialog').open) $('runDialog').close();
+  if (document.fullscreenElement) {
+    document.exitFullscreen().catch(() => {});
+  }
+  if ($('runDialog').open) {
+    $('runDialog').close();
+  }
 }
 $('closeRun').onclick = closeRun;
 $('runDialog').addEventListener('cancel', closeRun);
@@ -1210,7 +1412,9 @@ $('prevRun').onclick = () => {
 $('autoRun').onclick = () => {
   auto = !auto;
   if (auto) {
-    if (runIndex === slides.length - 1) runIndex = 0;
+    if (runIndex === slides.length - 1) {
+      runIndex = 0;
+    }
     resetRun();
   }
   $('autoRun').textContent = auto ? 'Ⅱ Pause' : '▶ Auto run';
@@ -1218,8 +1422,11 @@ $('autoRun').onclick = () => {
 };
 $('fullscreen').onclick = async () => {
   try {
-    if (document.fullscreenElement) await document.exitFullscreen();
-    else await $('runDialog').requestFullscreen();
+    if (document.fullscreenElement) {
+      await document.exitFullscreen();
+    } else {
+      await $('runDialog').requestFullscreen();
+    }
   } catch (e) {
     status(
       'Fullscreen is unavailable in this browser; the presentation still runs in this window.',
@@ -1228,10 +1435,10 @@ $('fullscreen').onclick = async () => {
 };
 
 // Video export controls
-let videoAbort = null,
-  videoURL = null,
-  videoBusy = false,
-  videoSlideIndex = 0;
+let videoAbort = null;
+let videoURL = null;
+let videoBusy = false;
+let videoSlideIndex = 0;
 const videoFields = [
   'videoScope',
   'videoSeconds',
@@ -1244,6 +1451,7 @@ const videoDuration = (ms) => {
   const seconds = Math.ceil(ms / 1000);
   return Math.floor(seconds / 60) + ':' + String(seconds % 60).padStart(2, '0');
 };
+// UI controls use seconds; the timeline/animation internals use milliseconds.
 function videoOptions() {
   return {
     seconds: Number($('videoSeconds').value),
@@ -1253,9 +1461,11 @@ function videoOptions() {
     finishMotions: $('videoFinish').checked,
   };
 }
+
 function videoSlides() {
   return $('videoScope').value === 'current' ? [slides[videoSlideIndex]] : slides;
 }
+
 function videoEstimate() {
   try {
     const p = EVVideo.timeline(videoSlides(), videoOptions());
@@ -1267,6 +1477,9 @@ function videoEstimate() {
     $('startVideo').disabled = true;
   }
 }
+
+// Object URLs keep their Blob alive. Revoke the previous result before opening
+// another export or closing its dialog to avoid retaining large video buffers.
 function clearVideoResult() {
   if (videoURL) {
     $('videoResult').pause();
@@ -1278,16 +1491,22 @@ function clearVideoResult() {
   $('videoResult').hidden = true;
   $('videoDownload').hidden = true;
 }
+
 function setVideoBusy(busy) {
   videoBusy = busy;
-  for (const id of videoFields) $(id).disabled = busy;
+  for (const id of videoFields) {
+    $(id).disabled = busy;
+  }
   $('cancelVideo').hidden = !busy;
   $('videoProgress').hidden = !busy;
   videoEstimate();
 }
+
 function openVideo() {
   videoSlideIndex = $('runDialog').open ? runIndex : index;
-  if ($('runDialog').open) closeRun();
+  if ($('runDialog').open) {
+    closeRun();
+  }
   const formats = EVVideo.formats();
   $('videoFormat').replaceChildren(...formats.map((f) => new Option(f.label, f.id)));
   $('videoSeconds').value = $('interval').value;
@@ -1297,10 +1516,13 @@ function openVideo() {
   $('videoDialog').showModal();
   videoEstimate();
 }
+
 function closeVideo() {
   videoAbort?.abort();
   clearVideoResult();
-  if ($('videoDialog').open) $('videoDialog').close();
+  if ($('videoDialog').open) {
+    $('videoDialog').close();
+  }
 }
 $('exportVideo').onclick = openVideo;
 $('runExportVideo').onclick = openVideo;
@@ -1309,19 +1531,25 @@ $('videoDialog').addEventListener('cancel', (e) => {
   e.preventDefault();
   closeVideo();
 });
-for (const id of videoFields) $(id).onchange = videoEstimate;
+for (const id of videoFields) {
+  $(id).onchange = videoEstimate;
+}
 $('cancelVideo').onclick = () => videoAbort?.abort();
+// Record a detached snapshot so UI state and later edits cannot alter frames
+// midway through an asynchronous export. EVVideo.record owns stream cleanup.
 $('startVideo').onclick = async () => {
-  if (videoBusy) return;
+  if (videoBusy) {
+    return;
+  }
   clearVideoResult();
   const snapshot = videoSlides().map((s) => ({
-      ...s,
-      pixels: s.pixels.slice(),
-      palette: { ...s.palette },
-      motions: S.motionList(s).map((m) => ({ ...m })),
-    })),
-    options = videoOptions(),
-    name = safeName($('videoScope').value === 'current' ? snapshot[0].name : title);
+    ...s,
+    pixels: s.pixels.slice(),
+    palette: { ...s.palette },
+    motions: S.motionList(s).map((m) => ({ ...m })),
+  }));
+  const options = videoOptions();
+  const name = safeName($('videoScope').value === 'current' ? snapshot[0].name : title);
   const controller = new AbortController();
   videoAbort = controller;
   setVideoBusy(true);
@@ -1371,10 +1599,10 @@ $('startVideo').onclick = async () => {
 function printDeck() {
   $('printPages').replaceChildren(
     ...slides.map((s, i) => {
-      const a = document.createElement('article'),
-        h = document.createElement('h2'),
-        img = document.createElement('img'),
-        p = document.createElement('p');
+      const a = document.createElement('article');
+      const h = document.createElement('h2');
+      const img = document.createElement('img');
+      const p = document.createElement('p');
       h.textContent = s.name;
       img.src = thumb(s).toDataURL();
       img.alt = s.name;
@@ -1391,8 +1619,12 @@ document
   .forEach((b) => (b.onclick = () => $(b.dataset.close).close()));
 
 // Shared editing shortcuts
+// Give active dialogs and text inputs their native keys first. DOS menu handling
+// runs in the capture phase and consumes keys before this shared editor handler.
 document.addEventListener('keydown', (e) => {
-  if ($('videoDialog').open) return;
+  if ($('videoDialog').open) {
+    return;
+  }
   if ($('runDialog').open) {
     if (
       /INPUT|TEXTAREA|SELECT/.test(e.target.tagName) ||
@@ -1401,8 +1633,9 @@ document.addEventListener('keydown', (e) => {
       e.metaKey ||
       e.altKey ||
       e.isComposing
-    )
+    ) {
       return;
+    }
     if (e.key === 'ArrowRight') {
       $('nextRun').onclick();
       e.preventDefault();
@@ -1417,8 +1650,12 @@ document.addEventListener('keydown', (e) => {
     }
     return;
   }
-  if ($('guide').open) return;
-  if (/INPUT|TEXTAREA|SELECT/.test(e.target.tagName)) return;
+  if ($('guide').open) {
+    return;
+  }
+  if (/INPUT|TEXTAREA|SELECT/.test(e.target.tagName)) {
+    return;
+  }
   const cmd = e.metaKey || e.ctrlKey;
   if (cmd && e.key.toLowerCase() === 'z') {
     e.preventDefault();
@@ -1438,14 +1675,18 @@ document.addEventListener('keydown', (e) => {
     }
     return;
   }
-  if (cmd) return;
+  if (cmd) {
+    return;
+  }
   if (
     e.key === 'Enter' &&
     document.activeElement === canvas &&
     document.body?.classList?.contains?.('dos-mode')
   ) {
     e.preventDefault();
-    if (!e.repeat) dosCanvasEnter();
+    if (!e.repeat) {
+      dosCanvasEnter();
+    }
     return;
   }
   if (e.key === 'Escape') {
@@ -1498,7 +1739,9 @@ document.addEventListener('keydown', (e) => {
     return;
   }
   const t = toolDefs.find((x) => x[3].toLowerCase() === e.key.toLowerCase());
-  if (t) setTool(t[0]);
+  if (t) {
+    setTool(t[0]);
+  }
 });
 window.addEventListener('beforeunload', (e) => {
   if (dirty || videoBusy) {

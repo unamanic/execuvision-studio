@@ -2,6 +2,11 @@
 /* Worker lifetime bounds CPU time and allows immediate cancellation. */
 const EVSevenZip = (() => {
   const active = new Set();
+  /**
+   * One disposable worker per archive bounds decoder memory lifetime. The URL,
+   * timer, worker, and active-task entry must be released on every completion path.
+   * The parent import generation token discards results from superseded requests.
+   */
   function read(bytes) {
     return new Promise((resolve, reject) => {
       const url = URL.createObjectURL(new Blob([EVSevenZipWorker], { type: 'text/javascript' }));
@@ -36,7 +41,9 @@ const EVSevenZip = (() => {
   return {
     read,
     cancel() {
-      for (const task of [...active]) task.stop();
+      for (const task of [...active]) {
+        task.stop();
+      }
     },
   };
 })();

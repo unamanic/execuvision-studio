@@ -1,24 +1,252 @@
-const assert=require('node:assert/strict'),S=require('../dist/core.js'),V=require('../dist/video.js'),EV=require('../dist/execuvision.js');
-const slides=S.demo();let p=V.timeline(slides,{seconds:4,finishMotions:true,scale:3,fps:30});assert.equal(p.width,960);assert.equal(p.height,600);assert.equal(p.entries[2].duration,9250);assert.equal(p.total,21250);assert.equal(V.timeline(slides,{seconds:4,finishMotions:false}).total,16000);
-let r=V.renderer(p);assert.equal(r(0).index,0);assert.equal(r(3999).index,0);assert.equal(r(4000).index,1);assert.equal(r(p.total).index,3);assert.deepEqual(r(8000).raster.pixels,slides[2].pixels);const motionFrame=r(9000);assert.deepEqual(motionFrame.raster.pixels,S.createAnimation(slides[2]).frame(1000).pixels);assert.deepEqual(EV.cgaPalette(motionFrame.slide.palette.background,motionFrame.slide.palette.family,motionFrame.slide.palette.intensity),EV.cgaPalette(0,0,1));
-for(const options of [{seconds:0},{seconds:241},{seconds:NaN},{scale:5},{fps:1000}])assert.throws(()=>V.timeline(slides,options));assert.throws(()=>V.timeline([],{}));assert.throws(()=>V.timeline(Array(100).fill(slides[0]),{seconds:240}),/30 minutes/);
-class Support{static isTypeSupported(t){return t==='video/webm;codecs=vp8'}}assert.deepEqual(V.formats(Support).map(f=>f.id),['webm']);assert.deepEqual(V.formats(null),[]);
-function environment(mode='ok'){
- let now=0,id=0,recorder;const callbacks=new Map(),timers=new Map(),listeners=new Map(),tracks=[{stopped:false,requests:0,stop(){this.stopped=true},requestFrame(){this.requests++}}],draws=[];
- const doc={hidden:false,addEventListener:(k,f)=>listeners.set(k,f),removeEventListener:k=>listeners.delete(k),createElement(){return{getContext(){return{putImageData(d){draws.push({kind:'source',data:d})}}}}}};
- const canvas={width:0,height:0,getContext(){return{drawImage(c,x,y,w,h){draws.push({kind:'scale',w,h})}}},captureStream(fps){this.fps=fps;return{getTracks:()=>tracks,getVideoTracks:()=>tracks}}};
- class Recorder{static isTypeSupported(t){return t==='video/webm;codecs=vp8'||t==='video/mp4;codecs=avc1.42001f'}constructor(stream,opts){if(mode==='constructor')throw Error('Encoder allocation failed');recorder=this;this.mimeType=opts.mimeType;this.state='inactive'}start(){if(mode==='start')throw Error('Encoder start failed');this.state='recording';if(mode!=='timeout')queueMicrotask(()=>this.onstart?.())}stop(){this.state='inactive';queueMicrotask(()=>{this.ondataavailable?.({data:mode==='empty'?new Blob([]):new Blob(['final-video-bytes'])});this.onstop?.()})}}
- const env={document:doc,MediaRecorder:Recorder,ImageData:function(data,w,h){this.data=data;this.width=w;this.height=h},Blob,performance:{now:()=>now},setTimeout(f,ms){const i=++id;timers.set(i,{f,end:now+ms});return i},clearTimeout:i=>timers.delete(i),requestAnimationFrame(f){const i=++id;callbacks.set(i,f);return i},cancelAnimationFrame:i=>callbacks.delete(i)};
- return{env,canvas,tracks,draws,listeners,timers,callbacks,get recorder(){return recorder},async advance(ms){now+=ms;for(const [i,t]of [...timers])if(t.end<=now){timers.delete(i);t.f()}for(const [i,f]of [...callbacks]){callbacks.delete(i);f(now)}await Promise.resolve();await Promise.resolve()}};
+const assert = require('node:assert/strict'),
+  S = require('../dist/core.js'),
+  V = require('../dist/video.js'),
+  EV = require('../dist/execuvision.js');
+const slides = S.demo();
+let p = V.timeline(slides, { seconds: 4, finishMotions: true, scale: 3, fps: 30 });
+assert.equal(p.width, 960);
+assert.equal(p.height, 600);
+assert.equal(p.entries[2].duration, 9250);
+assert.equal(p.total, 21250);
+assert.equal(V.timeline(slides, { seconds: 4, finishMotions: false }).total, 16000);
+let r = V.renderer(p);
+assert.equal(r(0).index, 0);
+assert.equal(r(3999).index, 0);
+assert.equal(r(4000).index, 1);
+assert.equal(r(p.total).index, 3);
+assert.deepEqual(r(8000).raster.pixels, slides[2].pixels);
+const motionFrame = r(9000);
+assert.deepEqual(motionFrame.raster.pixels, S.createAnimation(slides[2]).frame(1000).pixels);
+assert.deepEqual(
+  EV.cgaPalette(
+    motionFrame.slide.palette.background,
+    motionFrame.slide.palette.family,
+    motionFrame.slide.palette.intensity,
+  ),
+  EV.cgaPalette(0, 0, 1),
+);
+for (const options of [
+  { seconds: 0 },
+  { seconds: 241 },
+  { seconds: NaN },
+  { scale: 5 },
+  { fps: 1000 },
+])
+  assert.throws(() => V.timeline(slides, options));
+assert.throws(() => V.timeline([], {}));
+assert.throws(() => V.timeline(Array(100).fill(slides[0]), { seconds: 240 }), /30 minutes/);
+class Support {
+  static isTypeSupported(t) {
+    return t === 'video/webm;codecs=vp8';
+  }
 }
-(async()=>{
- const e=environment(),progress=[];const promise=V.record({slides:[slides[0],slides[2]],options:{seconds:1,finishMotions:false,scale:2,fps:30,format:'mp4'},canvas:e.canvas,onProgress:p=>progress.push(p)},e.env);await Promise.resolve();await e.advance(500);await e.advance(500);await e.advance(1000);const result=await promise;assert.equal(result.extension,'mp4');assert.match(result.mime,/video\/mp4/);assert.equal(result.duration,2000);assert.equal(result.width,640);assert.equal(e.canvas.height,400);assert.ok(result.blob.size);assert.deepEqual([...new Set(progress.map(p=>p.index))],[0,1]);assert.equal(progress.at(-1).elapsed,2000);assert.ok(e.tracks.every(t=>t.stopped));assert.equal(e.listeners.size,0);assert.equal(e.callbacks.size,0);assert.equal(e.timers.size,0);assert.ok(e.draws.some(x=>x.kind==='scale'&&x.w===640));
- // Cancellation releases encoder/tracks and never returns a partial video.
- const c=environment(),controller=new AbortController(),cancelled=V.record({slides,canvas:c.canvas,signal:controller.signal},c.env);await Promise.resolve();controller.abort();await assert.rejects(cancelled,{name:'AbortError'});assert.ok(c.tracks[0].stopped);assert.equal(c.callbacks.size,0);
- // Background tabs, codec failures, empty results, and runaway output fail explicitly.
- const hidden=environment(),h=V.record({slides,canvas:hidden.canvas},hidden.env);await Promise.resolve();hidden.env.document.hidden=true;hidden.listeners.get('visibilitychange')();await assert.rejects(h,/tab was hidden/);assert.ok(hidden.tracks[0].stopped);
- for(const mode of ['constructor','start','empty','timeout']){const f=environment(mode),promise=V.record({slides:[slides[0]],canvas:f.canvas,options:{seconds:1,finishMotions:false}},f.env);const assertion=assert.rejects(promise);await Promise.resolve();await f.advance(mode==='timeout'?10001:1000);await assertion;assert.ok(f.tracks[0].stopped);assert.equal(f.listeners.size,0)}
- const overflow=environment(),big=V.record({slides,canvas:overflow.canvas},overflow.env);await Promise.resolve();overflow.recorder.ondataavailable({data:{size:V.MAX_BYTES+1}});await assert.rejects(big,/256 MiB/);assert.ok(overflow.tracks[0].stopped);
- const unsupported=environment();unsupported.env.MediaRecorder=null;await assert.rejects(V.record({slides,canvas:unsupported.canvas},unsupported.env),/cannot record/);
- console.log('Video checks passed: timeline, slide boundaries/palettes, motion completion, formats, scaling, final chunks, cancellation, background interruption, errors/timeouts, size cap and cleanup.');
-})().catch(e=>{console.error(e);process.exit(1)});
+assert.deepEqual(
+  V.formats(Support).map((f) => f.id),
+  ['webm'],
+);
+assert.deepEqual(V.formats(null), []);
+function environment(mode = 'ok') {
+  let now = 0,
+    id = 0,
+    recorder;
+  const callbacks = new Map(),
+    timers = new Map(),
+    listeners = new Map(),
+    tracks = [
+      {
+        stopped: false,
+        requests: 0,
+        stop() {
+          this.stopped = true;
+        },
+        requestFrame() {
+          this.requests++;
+        },
+      },
+    ],
+    draws = [];
+  const doc = {
+    hidden: false,
+    addEventListener: (k, f) => listeners.set(k, f),
+    removeEventListener: (k) => listeners.delete(k),
+    createElement() {
+      return {
+        getContext() {
+          return {
+            putImageData(d) {
+              draws.push({ kind: 'source', data: d });
+            },
+          };
+        },
+      };
+    },
+  };
+  const canvas = {
+    width: 0,
+    height: 0,
+    getContext() {
+      return {
+        drawImage(c, x, y, w, h) {
+          draws.push({ kind: 'scale', w, h });
+        },
+      };
+    },
+    captureStream(fps) {
+      this.fps = fps;
+      return { getTracks: () => tracks, getVideoTracks: () => tracks };
+    },
+  };
+  class Recorder {
+    static isTypeSupported(t) {
+      return t === 'video/webm;codecs=vp8' || t === 'video/mp4;codecs=avc1.42001f';
+    }
+    constructor(stream, opts) {
+      if (mode === 'constructor') throw Error('Encoder allocation failed');
+      recorder = this;
+      this.mimeType = opts.mimeType;
+      this.state = 'inactive';
+    }
+    start() {
+      if (mode === 'start') throw Error('Encoder start failed');
+      this.state = 'recording';
+      if (mode !== 'timeout') queueMicrotask(() => this.onstart?.());
+    }
+    stop() {
+      this.state = 'inactive';
+      queueMicrotask(() => {
+        this.ondataavailable?.({
+          data: mode === 'empty' ? new Blob([]) : new Blob(['final-video-bytes']),
+        });
+        this.onstop?.();
+      });
+    }
+  }
+  const env = {
+    document: doc,
+    MediaRecorder: Recorder,
+    ImageData: function (data, w, h) {
+      this.data = data;
+      this.width = w;
+      this.height = h;
+    },
+    Blob,
+    performance: { now: () => now },
+    setTimeout(f, ms) {
+      const i = ++id;
+      timers.set(i, { f, end: now + ms });
+      return i;
+    },
+    clearTimeout: (i) => timers.delete(i),
+    requestAnimationFrame(f) {
+      const i = ++id;
+      callbacks.set(i, f);
+      return i;
+    },
+    cancelAnimationFrame: (i) => callbacks.delete(i),
+  };
+  return {
+    env,
+    canvas,
+    tracks,
+    draws,
+    listeners,
+    timers,
+    callbacks,
+    get recorder() {
+      return recorder;
+    },
+    async advance(ms) {
+      now += ms;
+      for (const [i, t] of [...timers])
+        if (t.end <= now) {
+          timers.delete(i);
+          t.f();
+        }
+      for (const [i, f] of [...callbacks]) {
+        callbacks.delete(i);
+        f(now);
+      }
+      await Promise.resolve();
+      await Promise.resolve();
+    },
+  };
+}
+(async () => {
+  const e = environment(),
+    progress = [];
+  const promise = V.record(
+    {
+      slides: [slides[0], slides[2]],
+      options: { seconds: 1, finishMotions: false, scale: 2, fps: 30, format: 'mp4' },
+      canvas: e.canvas,
+      onProgress: (p) => progress.push(p),
+    },
+    e.env,
+  );
+  await Promise.resolve();
+  await e.advance(500);
+  await e.advance(500);
+  await e.advance(1000);
+  const result = await promise;
+  assert.equal(result.extension, 'mp4');
+  assert.match(result.mime, /video\/mp4/);
+  assert.equal(result.duration, 2000);
+  assert.equal(result.width, 640);
+  assert.equal(e.canvas.height, 400);
+  assert.ok(result.blob.size);
+  assert.deepEqual([...new Set(progress.map((p) => p.index))], [0, 1]);
+  assert.equal(progress.at(-1).elapsed, 2000);
+  assert.ok(e.tracks.every((t) => t.stopped));
+  assert.equal(e.listeners.size, 0);
+  assert.equal(e.callbacks.size, 0);
+  assert.equal(e.timers.size, 0);
+  assert.ok(e.draws.some((x) => x.kind === 'scale' && x.w === 640));
+  // Cancellation releases encoder/tracks and never returns a partial video.
+  const c = environment(),
+    controller = new AbortController(),
+    cancelled = V.record({ slides, canvas: c.canvas, signal: controller.signal }, c.env);
+  await Promise.resolve();
+  controller.abort();
+  await assert.rejects(cancelled, { name: 'AbortError' });
+  assert.ok(c.tracks[0].stopped);
+  assert.equal(c.callbacks.size, 0);
+  // Background tabs, codec failures, empty results, and runaway output fail explicitly.
+  const hidden = environment(),
+    h = V.record({ slides, canvas: hidden.canvas }, hidden.env);
+  await Promise.resolve();
+  hidden.env.document.hidden = true;
+  hidden.listeners.get('visibilitychange')();
+  await assert.rejects(h, /tab was hidden/);
+  assert.ok(hidden.tracks[0].stopped);
+  for (const mode of ['constructor', 'start', 'empty', 'timeout']) {
+    const f = environment(mode),
+      promise = V.record(
+        { slides: [slides[0]], canvas: f.canvas, options: { seconds: 1, finishMotions: false } },
+        f.env,
+      );
+    const assertion = assert.rejects(promise);
+    await Promise.resolve();
+    await f.advance(mode === 'timeout' ? 10001 : 1000);
+    await assertion;
+    assert.ok(f.tracks[0].stopped);
+    assert.equal(f.listeners.size, 0);
+  }
+  const overflow = environment(),
+    big = V.record({ slides, canvas: overflow.canvas }, overflow.env);
+  await Promise.resolve();
+  overflow.recorder.ondataavailable({ data: { size: V.MAX_BYTES + 1 } });
+  await assert.rejects(big, /256 MiB/);
+  assert.ok(overflow.tracks[0].stopped);
+  const unsupported = environment();
+  unsupported.env.MediaRecorder = null;
+  await assert.rejects(
+    V.record({ slides, canvas: unsupported.canvas }, unsupported.env),
+    /cannot record/,
+  );
+  console.log(
+    'Video checks passed: timeline, slide boundaries/palettes, motion completion, formats, scaling, final chunks, cancellation, background interruption, errors/timeouts, size cap and cleanup.',
+  );
+})().catch((e) => {
+  console.error(e);
+  process.exit(1);
+});

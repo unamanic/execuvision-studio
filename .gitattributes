@@ -3,6 +3,5 @@
 *.tar.gz -text
 *.tar.xz -text
 vendor/** -text linguist-vendored
-dist/7z-License.txt -text
-dist/unRarLicense.txt -text
-dist/sevenzip-assets.js linguist-generated
+public/7z-License.txt -text
+public/unRarLicense.txt -text

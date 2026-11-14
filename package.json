@@ -8,7 +8,10 @@
     "test": "node tools/test.mjs",
     "test:corpus": "node tests/corpus.test.js",
     "preview": "node tools/preview.mjs",
-    "package": "npm test && node tools/package-release.mjs"
+    "package": "npm test && node tools/package-release.mjs",
+    "format": "prettier --write src tools tests .github package.json .prettierrc.json",
+    "format:check": "prettier --check src tools tests .github package.json .prettierrc.json",
+    "pretest:corpus": "npm run build"
   },
   "engines": {
     "node": ">=24"
@@ -20,5 +23,8 @@
     "type": "git",
     "url": "https://github.com/unamanic/execuvision-studio.git"
   },
-  "homepage": "https://unamanic.github.io/execuvision-studio/"
+  "homepage": "https://unamanic.github.io/execuvision-studio/",
+  "devDependencies": {
+    "prettier": "3.10.1"
+  }
 }

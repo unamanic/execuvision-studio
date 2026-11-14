@@ -1,0 +1,489 @@
+<!doctype html>
+<html lang="en"
+  ><head
+    ><meta charset="utf-8" /><meta
+      name="viewport"
+      content="width=device-width,initial-scale=1" /><title
+      >ExecuVision Studio — Create. Prepare. Present.</title
+    ><meta
+      name="description"
+      content="A browser-based reconstruction of ExecuVision presentation graphics, with native EV media, drawing, charts and slide shows." /><link
+      rel="stylesheet"
+      href="style.css" /><link rel="stylesheet" href="dos-mode.css" /><script
+      defer
+      src="execuvision.js"
+    ></script
+    ><script defer src="zip-reader.js"></script
+    ><script defer src="sevenzip-assets.js"></script
+    ><script defer src="sevenzip-reader.js"></script
+    ><script defer src="core.js"></script
+    ><script defer src="video.js"></script
+    ><script defer src="app.js"></script
+    ><script defer src="dos-mode.js"></script></head
+  ><body>
+    <header class="masthead"
+      ><a class="brand" href="./" aria-label="ExecuVision Studio"
+        ><span class="brand-icon">▥</span
+        ><span
+          >ExecuVision <em>Studio</em><small>PRESENTATION GRAPHICS / RECONSTRUCTED</small></span
+        ></a
+      ><div class="header-actions"
+        ><span class="local"><i></i> Files stay on this device</span
+        ><button id="dosToggle" aria-pressed="false">DOS mode</button
+        ><button id="help">Field guide <span>↗</span></button
+        ><button id="exportVideo">Export video ↓</button
+        ><button id="saveProject" class="primary">Save project ↓</button></div
+      ></header
+    >
+    <div class="menubar"
+      ><nav aria-label="Workspace"
+        ><button data-mode="create" class="active"><span>01</span> Create</button
+        ><button data-mode="prepare"><span>02</span> Prepare</button
+        ><button data-mode="run"><span>03</span> Run <b>▶</b></button
+        ><button data-mode="print"><span>04</span> Print</button></nav
+      ><div
+        ><button id="openProject">Open project</button
+        ><button id="newProject">New project</button></div
+      ></div
+    >
+    <div id="dosTitleBar" hidden
+      ><strong>EXECUVISION STUDIO <span> / CGA WORKSTATION</span></strong
+      ><div
+        ><button id="dosFullscreen">Full screen</button
+        ><button id="dosExitFullscreen" hidden>Windowed</button
+        ><button id="dosModern">Modern interface</button></div
+      ><span id="dosScreenStatus" role="status"></span></div
+    ><nav id="dosMenuBar" role="menubar" aria-label="DOS commands" hidden></nav
+    ><button id="dosPanelClose" hidden>Close window [Esc]</button
+    ><main id="workspace">
+      <aside class="tools-panel"
+        ><div class="panel-heading">CREATE <span>TOOLBOX</span></div
+        ><div class="tool-grid" id="tools"></div
+        ><div class="tool-options"
+          ><label
+            >Stroke
+            <select id="brush"
+              ><option value="1">1 pixel</option
+              ><option value="2">2 pixels</option
+              ><option value="4">4 pixels</option></select
+            ></label
+          ><label class="check"><input type="checkbox" id="filled" /> Filled shapes</label></div
+        >
+        <section id="textOptions" class="options" hidden
+          ><label
+            >Text<textarea id="textValue" rows="3" maxlength="240">
+YOUR NEXT BIG IDEA</textarea></label
+          ><div class="two"
+            ><label>Style<select id="fontStyle"></select></label
+            ><label
+              >Size<select id="fontSize"
+                ><option value="1">1×</option
+                ><option value="2" selected>2×</option
+                ><option value="3">3×</option
+                ><option value="4">4×</option></select
+              ></label
+            ></div
+          ><p>Click the canvas to set your text.</p></section
+        >
+        <section id="chartOptions" class="options" hidden
+          ><div class="panel-heading">PLOT <span>AUTOMATIC GRAPHS</span></div
+          ><label
+            >Graph<select id="chartType"
+              ><option value="bar">Bar graph</option
+              ><option value="stacked">Stacked bar graph</option
+              ><option value="line">Line graph</option
+              ><option value="pie">Pie graph</option></select
+            ></label
+          ><label
+            >Labels and values (CSV)<textarea id="chartData" rows="5">
+Q1, 24
+Q2, 42
+Q3, 61
+Q4, 84</textarea></label
+          ><p
+            >One label, value per line. Add up to three value columns for bars or lines. An optional
+            header names each series.</p
+          ><button id="plotSelection" disabled>Plot in selected area</button
+          ><button id="plotExample" class="quiet">Try price components</button
+          ><p>Or click the canvas to place a graph.</p></section
+        >
+        <section class="palette-panel"
+          ><div class="panel-heading">COLOR <span>4 OF 16</span></div
+          ><div id="swatches" class="swatches" role="group" aria-label="Drawing color"></div
+          ><label
+            >Palette<select id="paletteFamily"
+              ><option value="1,1">Cyan · Magenta · White</option
+              ><option value="1,0">Cyan · Magenta · Gray</option
+              ><option value="0,1">Green · Red · Yellow</option
+              ><option value="0,0">Green · Red · Brown</option></select
+            ></label
+          ><label>Background<select id="background"></select></label
+          ><p class="subtle"
+            >64 CGA combinations. Choose the interpretation that fits your image.</p
+          ></section
+        >
+        <section class="selection-panel"
+          ><div class="panel-heading">CUT & COMPOSE</div
+          ><div class="button-grid"
+            ><button id="copy">Copy</button><button id="cut">Cut</button
+            ><button id="paste">Paste</button><button id="deleteSelection">Delete</button
+            ><button id="savePix">Save PIX ↓</button
+            ><button id="clearSelection">Deselect</button></div
+          ><label class="check"
+            ><input id="mix" type="checkbox" checked /> Pixmix: skip background pixels</label
+          ><p id="selectionInfo" class="subtle"
+            >Drag a selection to copy, move, or save a picture.</p
+          ></section
+        >
+      </aside>
+      <section class="studio"
+        ><div class="document-bar"
+          ><div
+            ><span class="eyebrow">WORKING SLIDE</span
+            ><input id="slideName" aria-label="Slide name" maxlength="80" /></div
+          ><div class="undo-group"
+            ><button id="undo" title="Undo (Ctrl/Cmd Z)">↶ <span>Undo</span></button
+            ><button id="redo" title="Redo (Ctrl/Cmd Shift Z)">↷</button></div
+          ></div
+        ><div class="canvas-wrap" id="canvasWrap"
+          ><div class="ruler horizontal"
+            >0 <span>80</span><span>160</span><span>240</span><span>320</span></div
+          ><div class="canvas-frame"
+            ><canvas
+              id="canvas"
+              width="320"
+              height="200"
+              tabindex="0"
+              aria-label="Drawing canvas, 320 by 200 pixels. Use the toolbox, then drag to draw. Arrow keys move the keyboard cursor; Shift and arrow draws with the pencil."
+            ></canvas></div
+          ><div class="canvas-bottom"
+            ><span id="coords">X 000 / Y 000</span><span>320 × 200 <b>·</b> 2-BIT COLOR</span
+            ><label
+              >View
+              <select id="zoom"
+                ><option value="fit">Fit</option
+                ><option value="1">1×</option
+                ><option value="2">2×</option
+                ><option value="3">3×</option></select
+              ></label
+            ></div
+          ></div
+        ><div class="context-bar"
+          ><span id="toolHint">Pencil · drag to draw. Shift + arrow keys for precision.</span
+          ><button id="exportPNG">PNG ↓</button><button id="exportEV">Native EV ↓</button></div
+        >
+        <section class="motion-panel"
+          ><div class="motion-header"
+            ><div
+              ><span class="eyebrow">MOTION <b id="motionCount">0 / 32</b></span
+              ><strong>Give each idea its own direction.</strong
+              ><p>Select a region to add motion, or choose an existing motion to edit.</p></div
+            ><div
+              ><button id="newMotion">＋ New motion</button
+              ><button id="previewMotion">▶ Preview slide</button></div
+            ></div
+          ><div id="motionList" class="motion-list" aria-label="Motions on this slide"></div
+          ><div class="motion-controls"
+            ><label class="motion-name"
+              >Name<input id="motionName" maxlength="40" placeholder="Motion 1" /></label
+            ><label
+              >Move X<input id="motionX" type="number" value="160" min="-320" max="320" /></label
+            ><label>Move Y<input id="motionY" type="number" value="0" min="-200" max="200" /></label
+            ><label>Speed<select id="motionSpeed"></select></label
+            ><label
+              >Start (s)<input
+                id="motionDelay"
+                type="number"
+                value="0"
+                min="0"
+                max="240"
+                step="0.1" /></label
+            ><label class="check"><input id="motionTrail" type="checkbox" /> Trails</label
+            ><button id="setMotion">Add motion</button
+            ><button id="removeMotion">Remove</button></div
+          ><span id="motionInfo" class="subtle" role="status"></span
+        ></section>
+      </section>
+      <aside class="library-panel"
+        ><div class="panel-heading">PICTURE LIBRARY <span id="libraryCount">00</span></div
+        ><button id="importMedia" class="import-button"
+          ><strong>＋ Open original media</strong
+          ><span>EV · TOC · ZIP · 7z · disk IMG</span></button
+        ><input id="mediaFiles" type="file" multiple accept=".ev,.toc,.zip,.7z,.img" hidden /><input
+          id="projectFile"
+          type="file"
+          accept=".json,.evstudio"
+          hidden
+        /><label class="search-label"
+          ><span>⌕</span
+          ><input
+            type="search"
+            id="librarySearch"
+            placeholder="Find a picture…"
+            aria-label="Search library" /></label
+        ><div id="library" class="library"
+          ><div class="empty-library"
+            ><span>▧</span><h3>A whole library,<br />at your fingertips.</h3
+            ><p
+              >Open your original graphics disks to bring borders, symbols, maps, and lettering into
+              a slide.</p
+            ><small>Drop media anywhere to begin.</small></div
+          ></div
+        ><div id="importProgress" hidden
+          ><span>Reading media…</span><button id="cancelImport">Cancel</button></div
+        ><button id="clearLibrary" class="quiet" hidden>Clear library</button
+        ><details id="importReport" hidden
+          ><summary>Import report</summary><pre id="importErrors"></pre></details
+        ><div class="library-note"
+          >Original media stays local.<br />Only raster data is interpreted.</div
+        ></aside
+      >
+    </main>
+    <section id="prepareView" hidden
+      ><div class="prepare-heading"
+        ><div
+          ><span class="eyebrow">PREPARE YOUR PRESENTATION</span
+          ><h1>A story, one slide at a time.</h1
+          ><p
+            >Use the arrows to put your ideas in order. Every slide carries its own colors and
+            motion.</p
+          ></div
+        ><button id="exportDeck" class="primary">Export EV media ZIP ↓</button></div
+      ><div id="prepareGrid"></div
+    ></section>
+    <section class="filmstrip"
+      ><div class="filmstrip-heading"
+        ><span>SLIDE DIRECTORY <b id="slideCount">03</b></span
+        ><div
+          ><button id="duplicateSlide">Duplicate</button
+          ><button id="deleteSlide">Delete slide</button
+          ><button id="addSlide">＋ New slide</button></div
+        ></div
+      ><div id="slides" class="slide-list"></div
+    ></section>
+    <div id="dosKeys" hidden aria-label="Keyboard shortcuts"></div
+    ><footer
+      ><span id="status" role="status" aria-live="polite"
+        >Ready. Start with the demo, or open your original media.</span
+      ><span>EST. 1983 <i>/</i> REIMAGINED FOR THE WEB</span></footer
+    >
+    <dialog id="guide"
+      ><div class="dialog-top"
+        ><span class="eyebrow">THE FIELD GUIDE</span
+        ><button data-close="guide" aria-label="Close guide">×</button></div
+      ><h2>Create. Prepare. Present.</h2
+      ><p
+        ><a href="guide/" target="_blank" rel="noopener">Read the illustrated user guide ↗</a> —
+        modern and fullscreen DOS interfaces, controls, and step-by-step workflows.</p
+      ><p
+        >A working interpretation of ExecuVision, built from contemporary reviews, library booklets,
+        and independently recovered graphics formats.</p
+      ><div class="guide-grid"
+        ><section
+          ><h3>01 / Make a slide</h3
+          ><p
+            >Draw, type, fill areas, or place a chart. Select a region to move it, copy it, or save
+            a native PIX fragment. Pixmix treats color index 0 as transparent.</p
+          ></section
+        ><section
+          ><h3>02 / Bring your library</h3
+          ><p
+            >Open EV files with their TOC, disk ZIPs, original 7z packages, or raw 160/320 KiB DOS
+            disk images. Add a graphic as a slide or place it over your composition.</p
+          ></section
+        ><section
+          ><h3>03 / Take the stage</h3
+          ><p
+            >Prepare arranges slides. Run offers manual or timed playback, with multiple independent
+            straight-line motions, nine speeds, start delays, and optional trails. Choose a motion
+            from the list below the canvas to edit it, or select another region and Add motion.
+            Print creates slide handouts.</p
+          ></section
+        ><section
+          ><h3>04 / Keep your work</h3
+          ><p
+            >Export video records the whole presentation or the current slide, including palettes
+            and motions. Save project preserves pixels, palettes, motion, and original metadata.
+            Save regularly: closing the tab discards unsaved work. Native EV export writes the
+            recovered raster format; original-program compatibility is experimental.</p
+          ></section
+        ></div
+      ><details
+        ><summary>What is reconstructed, and what is interpreted?</summary
+        ><p
+          >The five original tasks and core drawing, text, chart, cut/paste, palette, motion, and
+          presentation behaviors follow the 1984–1985 reviews. Fonts, pointer controls, undo, JSON
+          projects, and this interface are new implementations. Exact historic fonts, palette
+          records, object records, and native animation records remain unresolved. Imported native
+          files retain opaque metadata, which may no longer describe edited pixels. New EV files use
+          a minimal inferred container. Native TOCs provide names for this app; legacy directory
+          metadata is unverified. Nothing in the cited YouTube history video's movie footage was
+          used as UI evidence.</p
+        ></details
+      ><div class="sources"
+        ><a
+          href="https://books.google.com/books?id=ZhoP0KRkQe4C&pg=PA143"
+          target="_blank"
+          rel="noreferrer"
+          >PC Magazine · March 1984 ↗</a
+        ><a
+          href="https://books.google.com/books?id=ZFw924nLBSoC&pg=PA160"
+          target="_blank"
+          rel="noreferrer"
+          >PC Magazine · June 1985 ↗</a
+        ><a
+          href="https://books.google.com/books?id=nS4EAAAAMBAJ&pg=PA63"
+          target="_blank"
+          rel="noreferrer"
+          >InfoWorld · October 1984 ↗</a
+        ><a href="RECONSTRUCTION.md" target="_blank">Reconstruction notes ↗</a
+        ><a href="licenses.html" target="_blank">Licenses ↗</a></div
+      ><button class="primary" data-close="guide">Back to the studio</button></dialog
+    >
+    <dialog id="runDialog"
+      ><div class="run-toolbar"
+        ><div><span class="eyebrow">RUN / PRESENTATION</span><strong id="runTitle"></strong></div
+        ><div
+          ><label
+            >Interval
+            <select id="interval"
+              ><option value="4">4 seconds</option
+              ><option value="10" selected>10 seconds</option
+              ><option value="20">20 seconds</option
+              ><option value="30">30 seconds</option
+              ><option value="60">1 minute</option
+              ><option value="120">2 minutes</option
+              ><option value="240">4 minutes</option></select
+            ></label
+          ><button id="autoRun">▶ Auto run</button
+          ><button id="runExportVideo">Export video ↓</button
+          ><button id="fullscreen">⛶ Fullscreen</button
+          ><button id="closeRun" aria-label="Close presentation">×</button></div
+        ></div
+      ><canvas id="runCanvas" width="320" height="200" aria-label="Presentation slide"></canvas
+      ><div class="run-bottom"
+        ><button id="prevRun">← Previous</button><span id="runCounter"></span
+        ><div class="run-skip"
+          ><label for="runSkipCount">Advance by</label
+          ><input
+            id="runSkipCount"
+            type="number"
+            min="1"
+            max="99"
+            step="1"
+            value="1"
+            inputmode="numeric"
+            aria-describedby="runSkipHint runSkipStatus"
+          /><span>slides</span><button id="runSkip">Advance</button></div
+        ><button id="nextRun">Next →</button></div
+      ><p id="runSkipHint" class="subtle"
+        >Moves forward by the entered number of slide positions, not to a slide number. Use Previous
+        to move backward.</p
+      ><p id="runSkipStatus" role="status" aria-live="polite"></p
+    ></dialog>
+    <dialog id="videoDialog" aria-labelledby="videoHeading"
+      ><div class="dialog-top"
+        ><span class="eyebrow">EXPORT / VIDEO</span
+        ><button id="closeVideo" aria-label="Close video export">×</button></div
+      ><h2 id="videoHeading">Take your slides with you.</h2
+      ><p class="video-intro"
+        >Export slides, colors, and every motion as a silent video. Everything is rendered on this
+        device.</p
+      ><div class="video-options"
+        ><label
+          >Slides<select id="videoScope"
+            ><option value="all">Entire presentation</option
+            ><option value="current">Current slide</option></select
+          ></label
+        ><label
+          >Seconds per slide<input
+            id="videoSeconds"
+            type="number"
+            min="1"
+            max="240"
+            step="1"
+            value="10" /></label
+        ><label
+          >Size<select id="videoScale"
+            ><option value="1">320 × 200 · native</option
+            ><option value="2">640 × 400 · 2×</option
+            ><option value="3" selected>960 × 600 · 3×</option
+            ><option value="4">1280 × 800 · 4×</option></select
+          ></label
+        ><label
+          >Frame rate<select id="videoFps"
+            ><option value="15">15 fps</option
+            ><option value="24">24 fps</option
+            ><option value="30" selected>30 fps</option
+            ><option value="60">60 fps</option></select
+          ></label
+        ><label>Format<select id="videoFormat"></select></label></div
+      ><label class="check"
+        ><input type="checkbox" id="videoFinish" checked /> Extend slides when needed to finish
+        every motion</label
+      ><p id="videoEstimate" class="subtle"></p
+      ><p class="video-note"
+        >Export takes the length of the video. Keep this tab visible until it finishes. No
+        microphone or screen recording is used.</p
+      ><canvas
+        id="videoCanvas"
+        width="960"
+        height="600"
+        aria-label="Video export preview"
+        hidden
+      ></canvas
+      ><video
+        id="videoResult"
+        controls
+        playsinline
+        hidden
+        aria-label="Exported video preview"
+      ></video
+      ><progress id="videoProgress" value="0" max="1" hidden></progress
+      ><p id="videoStatus" role="status" aria-live="polite"></p
+      ><div class="video-actions"
+        ><button id="startVideo" class="primary">Create video</button
+        ><button id="cancelVideo" hidden>Cancel export</button
+        ><a id="videoDownload" class="download-video" hidden>Download video ↓</a></div
+      ></dialog
+    >
+    <dialog id="dosHelp" aria-labelledby="dosHelpTitle"
+      ><h2 id="dosHelpTitle">DOS COMMAND REFERENCE</h2
+      ><p
+        >Keyboard-operated CGA-inspired interface. This is a new work-alike, not the original DOS
+        program.</p
+      ><div id="dosHelpContent"
+        ><p
+          ><b>F10</b> opens the command menus. Left/Right changes menu; Up/Down chooses a command;
+          Home/End jumps to the first/last command; Enter executes. Esc closes the menu and returns
+          focus.</p
+        ><p
+          ><b>F1</b> Help · <b>F2</b> Save project · <b>F3</b> Open project<br /><b>F4</b> Open
+          media · <b>F5</b> Run · <b>F6</b> Prepare<br /><b>F7</b> Create · <b>F8</b> Print ·
+          <b>F9</b> Palette</p
+        ><p
+          >Mouse interaction is disabled in DOS mode because period mouse support is not verified.
+          Tab still reaches every control. Existing drawing keys, Ctrl/Cmd shortcuts, and canvas
+          arrows continue to work. Shortcuts pause while typing or using a dialog. On a Mac, hold Fn
+          if the function keys control hardware.</p
+        ><p
+          >On the canvas, arrows move the cursor. Enter paints a point, fills, picks a color, or
+          places text, charts and pasted pictures. For lines, boxes, ellipses and selections, Enter
+          sets the first corner; move with arrows and press Enter again. Esc cancels. Shift + arrows
+          draws with Pencil or Erase. These keyboard operations are a usable reconstruction, not
+          verified original key assignments.</p
+        ><p
+          >Use Full screen in the DOS title bar for an immersive workspace. Escape exits browser
+          fullscreen; Windowed also exits it. Create opens drawing, toolbox, palette and
+          picture-library controls. Prepare opens slide ordering, the slide directory and motion
+          controls. Studio extras contains web project files, exports, fullscreen and help. The
+          bottom task menu follows the documented Create / Prepare / Print / Run / Quit
+          organization; submenu labels and exact layout are reconstructed. Quit directly returns to
+          modern Studio without discarding work. Use Modern interface in the title bar to leave this
+          interface. Switching interfaces preserves your slides, palette and unsaved edits.</p
+        ></div
+      ><button id="dosHelpClose">Return to work [Esc]</button></dialog
+    ><div id="printPages"></div
+    ><div id="dropOverlay" hidden>Drop media to open the picture library</div>
+  </body></html
+>

@@ -12,16 +12,14 @@ The guide includes screenshots of the modern workspace and fullscreen DOS mode, 
 
 ## Try it locally
 
-Open `dist/index.html` in a current desktop browser. The four-slide demonstration uses newly created artwork and includes charts and two independent moving objects.
-
-For an HTTP preview, install Node.js 24 or newer, then run:
+Install Node.js 24 or newer, then build and preview the app:
 
 ```sh
 npm run build
 npm run preview
 ```
 
-Open the printed localhost address. There are no npm dependencies to install. To read the guide offline, open `dist/guide/index.html`.
+Open the printed localhost address. The four-slide demo includes newly created artwork, charts, and two moving objects. After building, you can also open `dist/index.html` or `dist/guide/index.html` directly. Building and running tests need only Node; `npm ci` installs the optional development formatter.
 
 ## Features
 
@@ -42,7 +40,7 @@ See the [usage guide](docs/USAGE.md) for controls, motion editing, video export,
 
 The original DOS program is not included or emulated. The browser interface, fonts, undo system, project format, and several motion controls are new implementations. Raster interoperability has been checked against 268 historical graphics, but original-program acceptance of new files and the palette, object, animation, and complete directory semantics remain unverified.
 
-The recent slide-trailer palette hypothesis has not been adopted as an automatic color decoder. Choose palettes in Studio explicitly. See [reconstruction notes](dist/RECONSTRUCTION.md) for sources and limits.
+The recent slide-trailer palette hypothesis has not been adopted as an automatic color decoder. Choose palettes in Studio explicitly. See [reconstruction notes](public/RECONSTRUCTION.md) for sources and limits.
 
 Historical graphics, disk images, manuals, magazine scans, and user projects are not bundled. Open your own local files through the media importer.
 
@@ -50,12 +48,24 @@ Historical graphics, disk images, manuals, magazine scans, and user projects are
 
 ```sh
 npm test             # Builds and runs standalone tests; no historical samples needed
-npm run build        # Rebuilds the offline decoder and writes the Pages artifact to site/
-npm run preview      # Serves site/ on localhost
+npm run build        # Builds src/ + public/ into a fresh dist/
+npm run preview      # Serves dist/ on localhost
 npm run package      # Tests and creates verified source/site ZIPs in release/
 ```
 
-`dist/` contains the editable application source. `vendor/7z/` and `tools/sevenzip-core.js` supply the offline decoder build inputs. `site/` and `release/` are generated and ignored by Git. Tests cover the codec, editing, charts, motion, video, presentation controls, DOS keyboard interactions, archive import, and publication files.
+Edit the readable JavaScript, HTML, and CSS in [`src/`](src/). Static files, screenshots, licenses, and decoder source archives live in [`public/`](public/). `npm run build` copies these into `dist/` and generates the offline 7z worker from `src/workers/` and `vendor/7z/`. The build does not minify application code.
+
+`dist/` and `release/` are generated and ignored by Git; never edit them as source. Tests exercise the built application, including the codec, charts, motion, DOS controls, archive import, and publication files. See the [source map and build guide](docs/DEVELOPMENT.md) for where each feature lives.
+
+For consistent formatting:
+
+```sh
+npm ci
+npm run format
+npm run format:check
+```
+
+Prettier is pinned as a development dependency. The application has no runtime npm dependencies.
 
 An optional historical corpus check requires Python 3.10+ and locally supplied graphics libraries:
 
@@ -67,7 +77,7 @@ Set `EVSTUDIO_PYTHON` if the Python executable is not named `python3`. The optio
 
 ## GitHub Pages
 
-The included workflow runs tests for pull requests and publishes `site/` from `main`. Select **GitHub Actions** as the repository's Pages source. See [publication instructions](docs/PUBLISHING.md) for first-time setup and the expected repository/site addresses.
+The included workflow runs tests for pull requests and publishes `dist/` from `main`. Select **GitHub Actions** as the repository's Pages source. See [publication instructions](docs/PUBLISHING.md) for first-time setup and the expected repository/site addresses.
 
 ## License and acknowledgments
 
@@ -75,4 +85,4 @@ Original application code and synthetic demo artwork: [MIT License](LICENSE), co
 
 Thanks to Pieter van Mill for [the ExecuVision raster converter](https://github.com/pcmill/vcn-execuvision-slide-format-converter), which corroborated the recovered raster format. Thanks to OpenAI Codex for collaboration on implementation, research, testing, and documentation.
 
-The offline 7z decoder has separate LGPL and unRAR terms. Notices, corresponding source archives, and replacement instructions are included; see [third-party notices](THIRD_PARTY_NOTICES.md) and the [decoder source guide](dist/third_party/README.md).
+The offline 7z decoder has separate LGPL and unRAR terms. Notices, corresponding source archives, and replacement instructions are included; see [third-party notices](THIRD_PARTY_NOTICES.md) and the [decoder source guide](public/third_party/README.md).

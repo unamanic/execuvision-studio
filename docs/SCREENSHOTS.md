@@ -6,9 +6,9 @@ The images are actual application captures made with headless Chromium 159.0.815
 
 | Image | Capture |
 | --- | --- |
-| [Modern interface](../dist/guide/images/modern-interface.png) | Complete scrollable Create workspace, 1600 × 1428 pixels. |
-| [Fullscreen DOS mode](../dist/guide/images/dos-fullscreen.png) | 1600 × 1000 viewport after activating the real Enter full screen control with Enter. |
-| [DOS palette](../dist/guide/images/dos-palette.png) | 360 × 324 element capture of the palette window opened with F9 while in fullscreen DOS mode. |
+| [Modern interface](../public/guide/images/modern-interface.png) | Complete scrollable Create workspace, 1600 × 1428 pixels. |
+| [Fullscreen DOS mode](../public/guide/images/dos-fullscreen.png) | 1600 × 1000 viewport after activating the real Enter full screen control with Enter. |
+| [DOS palette](../public/guide/images/dos-palette.png) | 360 × 324 element capture of the palette window opened with F9 while in fullscreen DOS mode. |
 
 Before the DOS captures, browser checks confirmed `document.fullscreenElement === document.documentElement`, the `dos-fullscreen` body class, and the visible **Windowed** control. The application reported “Full screen.” Returning to Modern interface cleared fullscreen and retained the four demo slides. There were no JavaScript page errors during capture.
 

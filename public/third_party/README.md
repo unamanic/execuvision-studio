@@ -14,7 +14,7 @@ To replace the decoder in Studio:
 1. Build the original or modified wrapper/WASM using the corresponding sources.
 2. Replace `vendor/7z/7zz.umd.js` and `vendor/7z/7zz.wasm` in the source checkout.
 3. Update the provenance hashes and attribution to describe your replacement.
-4. Run `npm run build`. `tools/build-sevenzip.mjs` embeds the replacement plus `tools/sevenzip-core.js` into `dist/sevenzip-assets.js`; the build copies the site to `site/`.
+4. Run `npm run build`. `tools/build-sevenzip.mjs` embeds the replacement plus `src/workers/sevenzip-core.js` and `src/workers/sevenzip-worker.js` into `dist/sevenzip-assets.js`; the complete generated site is written to `dist/`.
 5. Run `npm test` and distribute the corresponding source and notices for your version.
 
 No application signing key or secret is required. The library's license terms apply to modifications and distribution. The running app uses the bundled decoder and does not fetch it from a CDN.

@@ -1,14 +1,14 @@
 # ExecuVision Studio
 
-[Read the illustrated user guide](https://unamanic.github.io/execuvision-studio/guide/) for step-by-step instructions, fullscreen controls, keyboard reference, and troubleshooting. An offline copy is included at `dist/guide/index.html`. In Studio, choose **Field guide → Read the illustrated user guide**.
+[Read the illustrated user guide](https://unamanic.github.io/execuvision-studio/guide/) for step-by-step instructions, fullscreen controls, keyboard reference, and troubleshooting. After `npm run build`, an offline copy is available at `dist/guide/index.html`. In Studio, choose **Field guide → Read the illustrated user guide**.
 
 ## The two interfaces
 
-![Modern workspace with tools, canvas, picture library, motion controls, and slide directory](../dist/guide/images/modern-interface.png)
+![Modern workspace with tools, canvas, picture library, motion controls, and slide directory](../public/guide/images/modern-interface.png)
 
 *Modern interface: mouse-operated drawing with controls beside the canvas.*
 
-![Fullscreen DOS workspace with the Windowed control and bottom task menus](../dist/guide/images/dos-fullscreen.png)
+![Fullscreen DOS workspace with the Windowed control and bottom task menus](../public/guide/images/dos-fullscreen.png)
 
 *Fullscreen DOS interface: keyboard operation, a large canvas, and transient tool windows. Use Tab to reach Enter full screen, then press Enter. Windowed or the browser’s Esc exits fullscreen.*
 
@@ -18,7 +18,7 @@ Both screenshots show the built-in demo. [Capture details](SCREENSHOTS.md).
 
 A browser-local work-alike of the presentation graphics workflow described in contemporary ExecuVision reviews and library booklets. This is an independent implementation, not an emulation of the original executable.
 
-Run `npm run build`, then `npm run preview` and open the printed localhost address, or open `dist/index.html` directly. Opening the source HTML directly needs no build; the HTTP preview serves the generated site. No package installation is required. Modern Chrome, Edge, Firefox or Safari with WebAssembly and native DEFLATE support is recommended; Chrome and Edge have been exercised interactively; see the validation record.
+Run `npm run build`, then `npm run preview` and open the printed localhost address, or open the built `dist/index.html` directly. The HTML in `src/` needs the generated offline decoder, so build before opening the app. Building and testing require Node.js 24 or newer; no npm package installation is needed unless you want the formatter. Modern Chrome, Edge, Firefox or Safari with WebAssembly and native DEFLATE support is recommended; Chrome and Edge have been exercised interactively; see the validation record.
 
 - Create: 320×200 four-index raster; pencil, erase, line, box, ellipse, flood fill, color picker, ten original text treatments, PLOT for pie/bar/line graphs, including grouped and stacked multi-series bars.
 - Cut and compose: rectangular selection, moving, copy/cut/paste, background-skipping Pixmix, native PIX export.
@@ -55,7 +55,7 @@ Implementation uses the existing motion renderer with the browser's [canvas capt
 
 ## Compatibility
 
-See [reconstruction notes](../dist/RECONSTRUCTION.md). Native files are an experimental interoperability feature. Original palette, object and animation records are unresolved; selected colors and motion are stored in the web project. The original DOS program has not been run to verify new exports.
+See [reconstruction notes](../public/RECONSTRUCTION.md). Native files are an experimental interoperability feature. Original palette, object and animation records are unresolved; selected colors and motion are stored in the web project. The original DOS program has not been run to verify new exports.
 
 ## Verification
 
@@ -63,7 +63,7 @@ See [reconstruction notes](../dist/RECONSTRUCTION.md). Native files are an exper
 
 Interactive Chrome checks: original disk import and TOC titles, native image display, selection/copy/paste and undo, slide ordering, and presentation playback. See [QA.md](../QA.md) for the final validation record.
 
-Implementation files are directly in `dist/`; the static Site publishes this directory. `core.js` is browser-independent, `app.js` binds it to the UI, and the original research decoder/ZIP/7z readers are reused with license notices.
+Readable implementation files live in `src/`; `npm run build` combines them with `public/` and the offline decoder to produce `dist/`. GitHub Pages publishes that generated directory. See [the development guide](DEVELOPMENT.md) for the source layout and build process.
 
 ## DOS interface mode
 

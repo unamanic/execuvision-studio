@@ -1,6 +1,6 @@
 # ExecuVision Studio
 
-Create pixel graphics, compose slides, and present them in a browser. Studio is an independent reconstruction of the workflow described in contemporary ExecuVision reviews and library booklets.
+Create pixel graphics, compose slides, and present them in a browser. Studio is an independent reconstruction inspired by contemporary ExecuVision marketing materials, reviews, and library booklets.
 
 It includes a modern workspace and a keyboard-operated DOS-style interface. Files are processed on your device, with no uploads, account, analytics, or runtime network dependencies.
 
@@ -38,11 +38,15 @@ See the [usage guide](docs/USAGE.md) for controls, motion editing, video export,
 
 ## What is reconstructed?
 
-The original DOS program is not included or emulated. The browser interface, fonts, undo system, project format, and several motion controls are new implementations. Raster interoperability has been checked against 268 historical graphics, but original-program acceptance of new files and the palette, object, animation, and complete directory semantics remain unverified.
+To our knowledge, no copies of the original ExecuVision software are publicly available. The original DOS program is not included or emulated. The browser interface, fonts, undo system, project format, and several motion controls are new implementations.
+
+Studio's graphics format is compatible with the available media libraries: raster interoperability has been checked against 268 historical graphics. However, no finished presentations created with the original software are available to us for testing. Original-program acceptance of new files and the palette, object, animation, and complete directory semantics therefore remain unverified.
 
 The recent slide-trailer palette hypothesis has not been adopted as an automatic color decoder. Choose palettes in Studio explicitly. See [reconstruction notes](public/RECONSTRUCTION.md) for sources and limits.
 
 Historical graphics, disk images, manuals, magazine scans, and user projects are not bundled. Open your own local files through the media importer.
+
+**Help fill the gaps:** If you have the original ExecuVision software or finished slides or presentations, please [open an issue](https://github.com/unamanic/execuvision-studio/issues/new) to contribute them. These materials would help preserve ExecuVision's history and let us test and improve compatibility with complete presentations.
 
 ## Development
 

@@ -1,0 +1,10 @@
+{
+  "package": "7z-wasm",
+  "version": "1.2.0",
+  "url": "https://registry.npmjs.org/7z-wasm/-/7z-wasm-1.2.0.tgz",
+  "source": "https://github.com/use-strict/7z-wasm",
+  "sha256": {
+    "7zz.umd.js": "163ddd968550dccf3da53afd0384f03868b33e5cb146a76080e6368721a75d08",
+    "7zz.wasm": "e16c6997e2eaa89575c0dd1f305074be629c3f4d87246244d37fd19debc8a285"
+  }
+}

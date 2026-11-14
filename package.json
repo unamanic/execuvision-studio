@@ -1,0 +1,24 @@
+{
+  "name": "execuvision-studio",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "build": "node tools/build.mjs",
+    "pretest": "npm run build",
+    "test": "node tools/test.mjs",
+    "test:corpus": "node tests/corpus.test.js",
+    "preview": "node tools/preview.mjs",
+    "package": "npm test && node tools/package-release.mjs"
+  },
+  "engines": {
+    "node": ">=24"
+  },
+  "description": "A browser-local reconstruction of the ExecuVision presentation graphics workflow.",
+  "license": "MIT",
+  "author": "William Witt",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/unamanic/execuvision-studio.git"
+  },
+  "homepage": "https://unamanic.github.io/execuvision-studio/"
+}

@@ -1,0 +1,96 @@
+/* Optional CGA text-workstation skin. Raster palettes are not modified. */
+[hidden]{display:none!important}
+body.dos-mode{--paper:#0000aa;--panel:#0000aa;--ink:#ffffff;--muted:#55ffff;--line:#aaaaaa;--green:#ffff55;--dark:#000000;background:#0000aa;color:#fff;font:14px/1.45 'Courier New',monospace}
+.dos-mode *{border-radius:0!important;transition:none!important}
+.dos-mode button,.dos-mode input,.dos-mode select,.dos-mode textarea{font-family:inherit;box-shadow:none;background:#0000aa;color:#fff;border-color:#aaa}
+.dos-mode button:hover,.dos-mode button:focus-visible{background:#00aaaa;color:#000}
+.dos-mode :focus-visible{outline:2px solid #ffff55;outline-offset:2px}
+.dos-mode button:disabled{opacity:.55}
+.dos-mode .masthead{padding:10px 16px;background:#000;color:#fff;border-bottom:2px solid #fff;gap:12px}
+.dos-mode .brand{font: bold 20px 'Courier New',monospace;letter-spacing:0;text-transform:uppercase}
+.dos-mode .brand em,.dos-mode .brand-icon{color:#55ffff}
+.dos-mode .brand small{color:#aaa;letter-spacing:1px}
+.dos-mode .header-actions{flex-wrap:wrap;gap:8px}
+.dos-mode .local{color:#55ffff;margin:0}
+.dos-mode .local i{background:#55ff55}
+.dos-mode .menubar{display:none}
+.dos-mode #dosMenuBar{display:flex;position:sticky;top:0;z-index:20;gap:0;background:#aaa;color:#000;padding:0 10px;border-bottom:2px solid #fff;min-height:38px}
+#dosMenuBar>div{position:relative}
+#dosMenuBar>div>button{background:#aaa;color:#000;border:0;padding:8px 18px;font-weight:bold}
+#dosMenuBar>div>button[aria-expanded=true],#dosMenuBar>div>button:focus{background:#0000aa;color:#fff}
+#dosMenuBar [role=menu]{position:absolute;top:100%;left:0;min-width:250px;max-width:90vw;padding:5px;background:#aaa;color:#000;border:3px double #000;box-shadow:7px 7px 0 #000;z-index:30}
+#dosMenuBar [role=menuitem]{display:flex;justify-content:space-between;gap:18px;width:100%;text-align:left;border:0;padding:7px 9px;background:#aaa;color:#000;white-space:nowrap}
+#dosMenuBar [role=menuitem]:focus,#dosMenuBar [role=menuitem]:hover{background:#0000aa;color:#fff;outline:none}
+#dosMenuBar [role=menuitem]:disabled,#dosMenuBar [aria-disabled=true]{color:#555;opacity:1}
+#dosMenuBar kbd{font:inherit}
+.dos-mode main{grid-template-columns:205px minmax(320px,1fr) 230px}
+.dos-mode .tools-panel,.dos-mode .library-panel,.dos-mode .filmstrip,.dos-mode .document-bar,.dos-mode .motion-panel,.dos-mode .context-bar{background:#0000aa;border:1px solid #aaa}
+.dos-mode .panel-heading,.dos-mode .eyebrow,.dos-mode .filmstrip-heading{color:#ffff55;letter-spacing:1px;font-family:inherit}
+.dos-mode .tool-grid button.active,.dos-mode .primary{background:#aaa;color:#000;border-color:#fff}
+.dos-mode .canvas-wrap{background:#000;padding-top:18px}
+.dos-mode .canvas-frame{border:3px double #fff;box-shadow:none}
+.dos-mode .canvas-bottom,.dos-mode .ruler{color:#55ffff}
+.dos-mode .slide-card,.dos-mode .motion-item,.dos-mode .library-item{background:#0000aa;color:#fff}
+.dos-mode .slide-card.active,.dos-mode .motion-item.active{border-color:#ffff55;background:#000}
+.dos-mode .search-label,.dos-mode .import-button{background:#0000aa;color:#fff}
+.dos-mode .empty-library h3,.dos-mode .empty-library>span{color:#55ffff}
+.dos-mode dialog{background:#0000aa;color:#fff;border:4px double #fff;box-shadow:12px 12px 0 #000;font-family:inherit}
+.dos-mode dialog::backdrop{background:#000a}
+.dos-mode dialog a{color:#55ffff}
+.dos-mode footer{background:#000;color:#55ffff;border-top:1px solid #aaa;font-family:inherit}
+#dosKeys{display:flex;flex-wrap:wrap;gap:6px 20px;background:#00aaaa;color:#000;padding:8px 16px;font:14px 'Courier New',monospace;border-top:2px solid #fff}
+#dosKeys button{border:0;padding:2px 4px;background:transparent;color:#000;font:inherit}
+#dosKeys kbd{color:#fff;background:#0000aa;padding:1px 4px;font:inherit}
+#dosHelp{max-width:680px;width:90vw}
+#dosHelpContent{margin:20px 0;line-height:1.8}
+@media(max-width:900px){.dos-mode main{grid-template-columns:170px minmax(280px,1fr)}.dos-mode .library-panel{grid-column:1/-1}.dos-mode .masthead{flex-wrap:wrap}#dosMenuBar>div>button{padding:8px 10px}}
+@media(max-width:580px){.dos-mode main{display:flex;flex-direction:column}.dos-mode .tools-panel{order:1}.dos-mode .studio{order:0}.dos-mode .library-panel{order:2}#dosMenuBar{flex-wrap:wrap}#dosMenuBar [role=menu]{min-width:210px}#dosMenuBar>div:nth-last-child(-n+2) [role=menu]{left:auto;right:0}.dos-mode .header-actions{gap:5px}.dos-mode .brand small{letter-spacing:0}}
+@media print{#dosMenuBar,#dosKeys,#dosToggle{display:none!important}}
+
+.dos-mode h1,.dos-mode h2,.dos-mode h3,.dos-mode .motion-header strong{font-family:inherit}
+
+/* Immersive DOS application shell: one workspace, transient command windows. */
+body.dos-mode{height:100dvh;overflow:hidden;display:flex;flex-direction:column;font-size:14px}
+.dos-mode .masthead{display:none}
+#dosTitleBar{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:5px;padding:5px 12px;background:#000;color:#55ffff;border:2px double #aaa;font:14px 'Courier New',monospace;flex:none}
+#dosTitleBar strong{letter-spacing:1px}#dosTitleBar strong span{font-weight:normal;color:#aaa}#dosTitleBar button{padding:3px 9px;font-size:12px}#dosScreenStatus:empty{display:none}#dosScreenStatus{width:100%;color:#ffff55;font-size:12px}
+.dos-mode #dosMenuBar{position:relative;flex:none;min-height:32px}
+.dos-mode #dosMenuBar>div>button{padding:5px 14px}
+.dos-mode main{position:relative;display:block!important;min-height:0;flex:1;overflow:hidden}
+.dos-mode .studio{height:100%;padding:6px 12px;display:flex;flex-direction:column;overflow:hidden}
+.dos-mode .document-bar{flex:none;padding:3px 8px;margin:0 0 6px;align-items:center}
+.dos-mode .document-bar>div:first-child{display:flex;align-items:center;gap:12px}
+.dos-mode .document-bar input{font-size:14px;padding:3px;max-width:50vw}
+.dos-mode .document-bar .eyebrow{white-space:nowrap;font-size:11px}
+.dos-mode .canvas-wrap{flex:1;min-height:0;width:100%;max-width:none;padding:5px 10px;display:flex;flex-direction:column;box-shadow:none}
+.dos-mode .ruler{display:none}
+.dos-mode .canvas-frame{flex:1;min-height:0;max-width:100%;border:0;width:100%;display:flex;align-items:center;justify-content:center}
+.dos-mode #canvas{width:auto!important;height:auto!important;max-width:100%;max-height:100%;aspect-ratio:8/5;object-fit:contain;border:1px solid #aaa}
+.dos-mode .canvas-bottom{flex:none;margin-top:5px;font-size:11px}
+.dos-mode .context-bar{flex:none;margin:5px 0 0;padding:4px 8px;min-height:30px;font-size:11px}
+.dos-mode .context-bar span{flex-basis:auto}.dos-mode .context-bar button{padding:3px 6px}
+.dos-mode .tools-panel,.dos-mode .library-panel,.dos-mode .motion-panel,.dos-mode .filmstrip{display:none!important}
+.dos-mode[data-dos-panel=tools] .tools-panel,.dos-mode[data-dos-panel=palette] .tools-panel,.dos-mode[data-dos-panel=library] .library-panel,.dos-mode[data-dos-panel=motion] .motion-panel,.dos-mode[data-dos-panel=slides] .filmstrip{display:block!important;position:fixed;z-index:25;top:100px;left:50%;transform:translateX(-50%);width:min(650px,calc(100vw - 32px));max-height:calc(100dvh - 180px);min-height:0;overflow:auto;padding:18px;background:#0000aa;border:4px double #fff;box-shadow:10px 10px 0 #000;margin:0}
+.dos-mode[data-dos-panel=tools] .tools-panel{width:min(400px,calc(100vw - 32px))}
+.dos-mode[data-dos-panel=palette] .tools-panel{width:min(360px,calc(100vw - 32px))}
+.dos-mode[data-dos-panel=palette] .tools-panel>:not(.palette-panel){display:none}
+.dos-mode[data-dos-panel=palette] .palette-panel{border:0;margin:0;padding:0}
+.dos-mode[data-dos-panel=tools] .palette-panel{display:none}
+.dos-mode .library{display:block;max-height:45vh;overflow:auto}.dos-mode .library-card{max-width:none}
+.dos-mode .motion-header{flex-wrap:wrap}.dos-mode .motion-controls{flex-wrap:wrap}
+.dos-mode .filmstrip .slide-list{flex-wrap:wrap;overflow:visible}
+.dos-mode #prepareView{flex:1;min-height:0;overflow:auto;padding:16px}
+.dos-mode #dosPanelClose{position:fixed;z-index:26;top:70px;right:18px;background:#aaa;color:#000;border:2px solid #fff;padding:4px 10px}
+.dos-mode #dosKeys{flex:none;padding:5px 10px;gap:3px 10px;font-size:12px}
+.dos-mode footer{flex:none;padding:4px 12px;font-size:11px}
+@media(max-width:600px){#dosTitleBar strong span{display:none}.dos-mode #dosMenuBar>div>button{padding:5px 6px;font-size:12px}.dos-mode #dosMenuBar{padding:0 3px}.dos-mode .studio{padding:4px}.dos-mode .document-bar .eyebrow{display:none}.dos-mode .context-bar span{max-width:55%;white-space:normal}.dos-mode footer>span:last-child{display:none}.dos-mode #dosKeys{gap:2px 5px;font-size:11px}}
+.dos-mode #canvas{width:min(100%,calc((100dvh - 230px)*1.6))!important;height:auto!important;flex:none}
+
+/* Period prose places the five-task menu below the work area; geometry is new. */
+.dos-mode #dosTitleBar{order:0}
+.dos-mode #workspace,.dos-mode #prepareView{order:1}
+.dos-mode #dosMenuBar{order:2;z-index:40}
+.dos-mode #dosKeys{order:3}
+.dos-mode footer{order:4}
+.dos-mode #dosMenuBar [role=menu]{top:auto;bottom:100%;max-height:calc(100dvh - 160px);overflow-y:auto;overscroll-behavior:contain}
+.dos-mode #dosMenuBar>div:last-child [role=menu]{left:auto;right:0}

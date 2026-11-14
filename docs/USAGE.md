@@ -1,5 +1,21 @@
 # ExecuVision Studio
 
+[Read the illustrated user guide](https://unamanic.github.io/execuvision-studio/guide/) for step-by-step instructions, fullscreen controls, keyboard reference, and troubleshooting. An offline copy is included at `dist/guide/index.html`. In Studio, choose **Field guide → Read the illustrated user guide**.
+
+## The two interfaces
+
+![Modern workspace with tools, canvas, picture library, motion controls, and slide directory](../dist/guide/images/modern-interface.png)
+
+*Modern interface: mouse-operated drawing with controls beside the canvas.*
+
+![Fullscreen DOS workspace with the Windowed control and bottom task menus](../dist/guide/images/dos-fullscreen.png)
+
+*Fullscreen DOS interface: keyboard operation, a large canvas, and transient tool windows. Use Tab to reach Enter full screen, then press Enter. Windowed or the browser’s Esc exits fullscreen.*
+
+Both screenshots show the built-in demo. [Capture details](SCREENSHOTS.md).
+
+## Overview
+
 A browser-local work-alike of the presentation graphics workflow described in contemporary ExecuVision reviews and library booklets. This is an independent implementation, not an emulation of the original executable.
 
 Run `npm run build`, then `npm run preview` and open the printed localhost address, or open `dist/index.html` directly. Opening the source HTML directly needs no build; the HTTP preview serves the generated site. No package installation is required. Modern Chrome, Edge, Firefox or Safari with WebAssembly and native DEFLATE support is recommended; Chrome and Edge have been exercised interactively; see the validation record.

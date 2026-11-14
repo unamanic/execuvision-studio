@@ -4,6 +4,12 @@ Create pixel graphics, compose slides, and present them in a browser. Studio is 
 
 It includes a modern workspace and a keyboard-operated DOS-style interface. Files are processed on your device, with no uploads, account, analytics, or runtime network dependencies.
 
+## Use Studio
+
+[Open the editor](https://unamanic.github.io/execuvision-studio/) · [Read the illustrated user guide](https://unamanic.github.io/execuvision-studio/guide/)
+
+The guide includes screenshots of the modern workspace and fullscreen DOS mode, plus drawing, chart, animation, presentation, and saving instructions. It is also available through **Field guide → Read the illustrated user guide** in the app.
+
 ## Try it locally
 
 Open `dist/index.html` in a current desktop browser. The four-slide demonstration uses newly created artwork and includes charts and two independent moving objects.
@@ -15,7 +21,7 @@ npm run build
 npm run preview
 ```
 
-Open the printed localhost address. There are no npm dependencies to install. The prepared GitHub Pages address is `https://unamanic.github.io/execuvision-studio/`; it becomes available after publication.
+Open the printed localhost address. There are no npm dependencies to install. To read the guide offline, open `dist/guide/index.html`.
 
 ## Features
 

@@ -52,3 +52,10 @@ The browser extension host was unavailable, so native Chrome UI was used instead
 - Git attributes preserve the original vendor bytes, and the staged decoder files match their recorded SHA-256 hashes. Generated output, hosting identity, local media, and user projects are excluded.
 - A fresh interactive preview was attempted, but the browser access host was unavailable. The earlier browser checks above remain the visual evidence; no new visual verification is claimed for this packaging pass.
 - The GitHub Actions workflow and first-publication instructions are prepared. No remote repository was created, no files were pushed, and no public deployment was performed or verified.
+
+## Illustrated user guide (2026-11-14)
+
+- Added an 11-section guide with modern-interface, fullscreen DOS, and DOS palette screenshots. Capture provenance is recorded in [docs/SCREENSHOTS.md](docs/SCREENSHOTS.md). The screenshots use only the built-in synthetic demo.
+- With the user's authorization to use headless Chromium after the standard computer tools were unavailable, captured the published application in Chromium 159.0.8154.6. Verified the real browser Fullscreen API state, the DOS fullscreen class, and the Windowed control before capturing; returning to the modern interface exited fullscreen. No JavaScript page errors occurred.
+- Inspected the guide at 1440 px and 390 px widths. Its 11 section anchors, image loading, expandable troubleshooting answers, and body width checks passed. Visually reviewed desktop and mobile captures. The app's Field guide link opened the illustrated guide in a separate tab while retaining the four-slide editor session.
+- `npm test` passed all 12 standalone suites. After the final CSS adjustment, rebuilt the site and reran publication checks: all local asset and source links resolve across the 27-file Pages artifact. No drawing, project, codec, or animation behavior changed.

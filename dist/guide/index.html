@@ -1,0 +1,228 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="An illustrated guide to ExecuVision Studio: draw and compose slides, use the fullscreen DOS interface, add motion, present, and save your work.">
+  <title>ExecuVision Studio — User guide</title>
+  <link rel="stylesheet" href="guide.css">
+</head>
+<body>
+<a class="skip" href="#content">Skip to the guide</a>
+<header class="topbar">
+  <a class="brand" href="../">ExecuVision <em>Studio</em></a>
+  <nav aria-label="Site"><a href="https://github.com/unamanic/execuvision-studio">Source code</a><a class="button" href="../">Open Studio <span aria-hidden="true">↗</span></a></nav>
+</header>
+<div class="page">
+  <aside class="contents">
+    <nav aria-label="On this page">
+      <p class="eyebrow">USER GUIDE</p>
+      <a href="#start">01 · Start a presentation</a>
+      <a href="#modern">02 · Modern interface</a>
+      <a href="#dos">03 · Fullscreen DOS mode</a>
+      <a href="#draw">04 · Draw &amp; choose colors</a>
+      <a href="#compose">05 · Import &amp; compose</a>
+      <a href="#plot">06 · Make a chart</a>
+      <a href="#prepare">07 · Arrange &amp; animate</a>
+      <a href="#present">08 · Present &amp; export video</a>
+      <a href="#save">09 · Save &amp; export files</a>
+      <a href="#keys">10 · Keyboard reference</a>
+      <a href="#help">11 · Troubleshooting</a>
+    </nav>
+    <p class="side-note">Two interfaces.<br>One presentation.<br>All files stay on your device.</p>
+  </aside>
+  <main id="content">
+    <div class="hero">
+      <p class="eyebrow">CREATE / PREPARE / PRESENT</p>
+      <h1>Your guide to<br>ExecuVision Studio.</h1>
+      <p class="lead">Make a picture. Give it motion. Tell your story in four colors.</p>
+      <p>Studio is a browser-based slideshow editor inspired by the ExecuVision graphics workflow. Use the modern workspace with a mouse, or switch to a keyboard-operated DOS interface. Both edit the same slides.</p>
+      <div class="hero-links"><a href="../" class="button">Start creating <span aria-hidden="true">↗</span></a><a href="#dos">Go to fullscreen DOS mode ↓</a></div>
+      <p class="edition">Guide updated November 14, 2026 · Screenshots use the included demo artwork.</p>
+    </div>
+
+    <section id="start">
+      <p class="eyebrow">01 / GET STARTED</p><h2>Your first presentation</h2>
+      <ol>
+        <li><a href="../">Open Studio</a>. The four-slide demo is ready to edit; choose a thumbnail in the <strong>Slide directory</strong> to explore it.</li>
+        <li>Choose <strong>New project</strong> for a blank presentation, or <strong>Duplicate</strong> to build on a demo slide. Change the slide name above the canvas.</li>
+        <li>Choose a drawing color and tool. Add text, shapes, a chart, or a picture from your own media.</li>
+        <li>Use <strong>New slide</strong> to add another slide, then <strong>Prepare</strong> to put them in order.</li>
+        <li>Choose <strong>Save project</strong> to download your editable <code>.evstudio</code> file. Choose <strong>Run</strong> to present.</li>
+      </ol>
+      <div class="note"><strong>Save as you go.</strong> Studio has no autosave or online account. Reloading or closing the page can discard unsaved work. Keep the downloaded project; use <strong>Open project</strong> to continue later.</div>
+    </section>
+
+    <section id="modern">
+      <p class="eyebrow">02 / THE MODERN WORKSPACE</p><h2>Everything within reach</h2>
+      <p>The modern interface keeps the toolbox, canvas, and picture library visible together. Click controls and draw directly on the canvas with your mouse.</p>
+      <figure>
+        <a href="images/modern-interface.png" aria-label="Open full-size screenshot of the modern interface"><img src="images/modern-interface.png" alt="The modern ExecuVision Studio workspace, with drawing tools on the left, the demo slide canvas in the center, the picture library on the right, and slide thumbnails below." width="1600" height="1428"></a>
+        <figcaption><span>MODERN INTERFACE</span> The built-in title slide in Create. Open any screenshot for a closer look.</figcaption>
+      </figure>
+      <dl class="map">
+        <div><dt>Top bar</dt><dd>Switch between Create, Prepare, Run, and Print. Save or open a project; export images and video; switch to the DOS interface.</dd></div>
+        <div><dt>Left · Toolbox</dt><dd>Choose a drawing tool, stroke size, text or chart settings, the four-color palette, and selection commands.</dd></div>
+        <div><dt>Center · Canvas</dt><dd>Edit the selected 320 × 200 slide. The slide name sits above it; motion controls sit below it.</dd></div>
+        <div><dt>Right · Picture library</dt><dd>Open your own original media, search its titles, and add graphics to your composition.</dd></div>
+        <div><dt>Bottom · Slide directory</dt><dd>Select, duplicate, delete, or add slides. The status line reports the result of your latest action.</dd></div>
+      </dl>
+    </section>
+
+    <section id="dos">
+      <p class="eyebrow">03 / THE DOS WORKSPACE</p><h2>Fill the screen. Use the keyboard.</h2>
+      <p>Choose <strong>DOS mode</strong> in the modern top bar (the button reads <strong>DOS interface</strong> after switching back). The canvas fills the workspace, with a title bar above and task menus and function-key shortcuts below. Tool windows open only when you need them.</p>
+      <ol>
+        <li>After entering DOS mode, press <kbd>Tab</kbd> until <strong>Enter full screen</strong> is focused in the title bar.</li>
+        <li>Press <kbd>Enter</kbd>. The browser enters fullscreen when supported and permitted.</li>
+        <li>Use <strong>Windowed</strong> or the browser's <kbd>Esc</kbd> to leave fullscreen. Use <strong>Modern interface</strong>, or the <strong>Quit</strong> task, to return to the modern workspace.</li>
+      </ol>
+      <figure>
+        <a href="images/dos-fullscreen.png" aria-label="Open full-size screenshot of fullscreen DOS mode"><img src="images/dos-fullscreen.png" alt="ExecuVision Studio in browser fullscreen with the blue DOS interface, a large demo slide, the Windowed control in the title bar, and Create, Prepare, Print, Run, Quit, and Studio extras menus along the bottom." width="1600" height="1000" loading="lazy"></a>
+        <figcaption><span>FULLSCREEN DOS MODE</span> The same presentation in the keyboard workspace. The Windowed control indicates fullscreen is active.</figcaption>
+      </figure>
+      <div class="note"><strong>DOS mode is keyboard-operated.</strong> Mouse clicks are disabled in this mode. Use <kbd>Tab</kbd> / <kbd>Shift</kbd> + <kbd>Tab</kbd> to move among controls and <kbd>Enter</kbd> or <kbd>Space</kbd> to activate them. Switching interfaces or choosing Quit preserves your current work.</div>
+      <h3>Open a menu or tool window</h3>
+      <p>Press <kbd>F10</kbd> to focus the task menus. Use <kbd>←</kbd> / <kbd>→</kbd> to choose a task, <kbd>↓</kbd> to open its menu, and <kbd>↑</kbd> / <kbd>↓</kbd> to choose a command. Press <kbd>Enter</kbd> to run it. <kbd>Home</kbd> and <kbd>End</kbd> jump to the ends of the menu. <kbd>Esc</kbd> dismisses menus and returns focus.</p>
+      <p><strong>Create</strong> contains drawing tools, palette controls, the toolbox, and picture library. <strong>Prepare</strong> contains slide ordering, the slide directory, and motion controls. <strong>Studio extras</strong> contains project files, exports, undo/redo, fullscreen, and help.</p>
+      <p>Press <kbd>F9</kbd> for the palette window. Use Tab to move between palette, background, and swatches. When a text field or select has focus, its keys edit that control; Tab to <strong>Close window [Esc]</strong> and press Enter to return to the canvas. Outside an editing control, Esc also closes the window.</p>
+      <figure class="secondary">
+        <a href="images/dos-palette.png" aria-label="Open full-size screenshot of the DOS palette window"><img src="images/dos-palette.png" alt="The DOS palette window showing four swatches, a palette selector, and a background selector." width="360" height="324" loading="lazy"></a>
+        <figcaption><span>PALETTE WINDOW · F9</span> Change the slide's colors, then close the window to return to drawing.</figcaption>
+      </figure>
+      <h3>Draw from the keyboard</h3>
+      <p>With the canvas focused, use the arrow keys to move the cursor one pixel at a time. Select a tool through Create or its letter shortcut, then:</p>
+      <ul>
+        <li><strong>Pencil / Erase:</strong> Enter paints or erases a point. Hold Shift while pressing arrows to draw or erase a line.</li>
+        <li><strong>Line / Box / Ellipse / Select:</strong> Enter marks the first point. Move with arrows, then press Enter again to finish.</li>
+        <li><strong>Fill / Pick:</strong> Enter fills the area or picks the color under the cursor.</li>
+        <li><strong>Text / PLOT:</strong> Set text or data in <strong>Create → Toolbox</strong>, return to the canvas, position the cursor, and press Enter to place it.</li>
+        <li><strong>Pasted pictures:</strong> Move the preview with arrows and press Enter to place it. Esc cancels a pending placement or first corner.</li>
+      </ul>
+      <p class="small">On a Mac, you may need Fn with a function key if that key normally adjusts brightness or volume. DOS mode remains usable inside the page if fullscreen is denied.</p>
+    </section>
+
+    <section id="draw">
+      <p class="eyebrow">04 / CREATE</p><h2>Draw with four colors</h2>
+      <p>Each slide is a 320 × 200 raster. Choose one of four swatches before drawing. <strong>Palette</strong> selects a foreground color family; <strong>Background</strong> selects one of 16 colors, giving 64 combinations. A palette change recolors the entire slide's existing pixel indices.</p>
+      <div class="table-wrap"><table><caption>Drawing tools in the modern interface</caption><thead><tr><th>Tool / key</th><th>Use it to…</th></tr></thead><tbody>
+        <tr><th>Pencil <kbd>P</kbd> / Erase <kbd>E</kbd></th><td>Drag to draw or paint with the background color. Choose a 1, 2, or 4 pixel stroke.</td></tr>
+        <tr><th>Line <kbd>L</kbd></th><td>Drag from the start to the end of a straight line.</td></tr>
+        <tr><th>Box <kbd>B</kbd> / Ellipse <kbd>O</kbd></th><td>Drag between two corners. Enable <strong>Filled shapes</strong> for a solid shape.</td></tr>
+        <tr><th>Fill <kbd>F</kbd> / Pick <kbd>I</kbd></th><td>Click a connected area to recolor it, or click a pixel to select its drawing color.</td></tr>
+        <tr><th>Select <kbd>S</kbd></th><td>Drag a rectangular region for copying, moving, exporting, or animation.</td></tr>
+        <tr><th>Text <kbd>T</kbd></th><td>Enter text, choose a style and size, then click its starting position on the canvas.</td></tr>
+        <tr><th>PLOT <kbd>G</kbd></th><td>Generate a chart from comma-separated labels and values.</td></tr>
+      </tbody></table></div>
+      <p>Text and charts become pixels when placed. They do not remain editable text boxes or chart objects. Use <strong>Undo</strong> to remove a placement, change its settings, and place it again.</p>
+    </section>
+
+    <section id="compose">
+      <p class="eyebrow">05 / CUT &amp; COMPOSE</p><h2>Bring pictures together</h2>
+      <h3>Select, copy, and place</h3>
+      <p>Choose <strong>Select</strong> and mark a rectangle. In modern mode, drag inside it to move the selected pixels. <strong>Copy</strong> keeps the original; <strong>Cut</strong> removes it. Choose <strong>Paste</strong>, move the preview, and click to place it. In DOS mode, use arrows and Enter for placement. The app's picture clipboard holds raster selections, not arbitrary images from your operating system's clipboard.</p>
+      <p><strong>Pixmix: skip background pixels</strong> treats pixel index 0 in the source picture as transparent during composition. Turn it off when you want to paste the entire rectangle, including its background. <strong>Delete</strong> clears the selected region; <strong>Deselect</strong> removes the selection outline without clearing pixels.</p>
+      <h3>Open original media</h3>
+      <ol>
+        <li>Choose <strong>Open original media</strong> in the library, or press <kbd>F4</kbd> in DOS mode. In modern mode you can also drop media onto the page.</li>
+        <li>Select EV graphics and their TOC, a ZIP, a supported 7z archive, or a 160/320 KiB DOS disk IMG. TOC files supply names; they do not contain the pictures themselves.</li>
+        <li>Search the library by title. Choose <strong>＋ Slide</strong> to add a picture as a new slide, or <strong>Place PIX</strong> to position it on the current slide.</li>
+      </ol>
+      <p>Imported files stay on your device. Studio ships with synthetic demo artwork; original graphics libraries are not included. Imported colors use the current palette interpretation, so adjust the palette when necessary.</p>
+    </section>
+
+    <section id="plot">
+      <p class="eyebrow">06 / PLOT</p><h2>Turn numbers into pictures</h2>
+      <p>Choose <strong>PLOT</strong> and select Bar, Stacked bar, Line, or Pie. Enter one label and its values per line. Bar and line charts accept up to three value columns; an optional header names the series. Multiple columns produce grouped bars in Bar mode. Pie charts require exactly one value column and calculate percentages automatically. Use 1–12 data rows, nonnegative values, and at least one value greater than zero.</p>
+      <pre aria-label="Example chart data"><code>Quarter, Sales, Costs
+Q1, 24, 18
+Q2, 42, 26
+Q3, 61, 35
+Q4, 84, 49</code></pre>
+      <p>Click the canvas to place the chart at the default size. For a specific size, use Select to mark an area at least 60 × 50 pixels, return to PLOT, and choose <strong>Plot in selected area</strong>. <strong>Try price components</strong> supplies a ready-made stacked bar example.</p>
+      <p>In DOS mode, choose <strong>Create → PLOT chart</strong>, enter the data in the toolbox window, then return to the canvas and press Enter to place it.</p>
+    </section>
+
+    <section id="prepare">
+      <p class="eyebrow">07 / PREPARE</p><h2>Arrange slides. Add motion.</h2>
+      <p>Use the slide directory to choose a slide. <strong>New slide</strong> inserts a blank slide after it, using its palette; <strong>Duplicate</strong> copies its artwork, palette, and motion. <strong>Prepare</strong> shows the slide overview: use the left and right arrows to move slides earlier or later, then <strong>Edit slide</strong> to return to drawing. A presentation can contain up to 100 slides.</p>
+      <h3>Animate a region</h3>
+      <ol>
+        <li>Use <strong>Select</strong> to mark the graphic you want to move.</li>
+        <li>In the motion controls below the canvas, enter a name and <strong>Move X</strong> / <strong>Move Y</strong> distances in pixels. Positive X moves right; positive Y moves down. Negative values move left or up.</li>
+        <li>Choose a speed from 1 (slowest) to 9 (fastest), a start delay in seconds, and whether to leave <strong>Trails</strong>.</li>
+        <li>Choose <strong>Add motion</strong>, then <strong>Preview slide</strong> to see it play.</li>
+      </ol>
+      <p><strong>New motion</strong> starts another selection. Each slide can have up to 32 independent motions. Click a named motion to edit it, change its settings, and choose <strong>Update motion</strong>. <strong>Remove</strong> removes the animation while keeping the artwork. Later motions in the list render above earlier ones if they overlap.</p>
+      <p>In DOS mode, open <strong>Prepare → Motion controls</strong> after selecting a region. To explore an existing example, open the demo's <strong>Ideas in motion</strong> slide: the red square and yellow disc have independent paths and start times.</p>
+    </section>
+
+    <section id="present">
+      <p class="eyebrow">08 / RUN</p><h2>Present it live, or make a video</h2>
+      <h3>Live presentation</h3>
+      <p><strong>Run</strong> starts at the selected slide. Use <strong>Previous</strong> and <strong>Next</strong>, or the left and right arrow keys when focus is outside an input, for manual navigation. <strong>Advance by</strong> moves forward by a number of slide positions: from slide 1, entering 2 takes you to slide 3.</p>
+      <p>Choose an interval from 4 seconds to 4 minutes, then <strong>Auto run</strong> for timed advance. Pick an interval long enough for delayed motions to finish. <strong>Fullscreen</strong> expands the presentation; this is separate from fullscreen editing in DOS mode. Close the presentation with its × control to return to editing.</p>
+      <h3>Video export</h3>
+      <ol>
+        <li>Choose <strong>Export video</strong> in the header or Run window.</li>
+        <li>Select the entire presentation or current slide, seconds per slide, size, frame rate, and an available MP4 or WebM format.</li>
+        <li>Keep <strong>Extend slides when needed to finish every motion</strong> enabled to avoid cutting motions short. Disable it for fixed slide timing.</li>
+        <li>Choose <strong>Create video</strong>. Keep the tab visible while it records, then preview and download the result.</li>
+      </ol>
+      <p>Export is silent and runs in real time. It includes the artwork, selected palettes, and motion, without the editor controls. Available sizes run from 320 × 200 to 1280 × 800, with 15, 24, 30, or 60 fps. Format support depends on the browser. Exports are limited to 30 minutes and 256 MiB; Cancel stops a recording without downloading a partial file.</p>
+      <p>For paper handouts, choose <strong>Print</strong> and use your browser's print dialog.</p>
+    </section>
+
+    <section id="save">
+      <p class="eyebrow">09 / KEEP YOUR WORK</p><h2>Choose the right file</h2>
+      <div class="table-wrap"><table><caption>Saving and exporting</caption><thead><tr><th>Command</th><th>What you get</th></tr></thead><tbody>
+        <tr><th>Save project</th><td>A complete <code>.evstudio</code> project with slide pixels, names, order, palettes, motions, and retained source metadata. Use this to continue editing. The separate imported picture-library list is not saved.</td></tr>
+        <tr><th>PNG</th><td>A still image of the current slide in its chosen colors. It does not contain animation or editor controls.</td></tr>
+        <tr><th>EV</th><td>The current slide's native-format raster. Original-program compatibility is experimental; use the project file to preserve chosen palettes and web motion.</td></tr>
+        <tr><th>Save PIX</th><td>The selected rectangle as a native PIX raster named <code>PIX001.EV</code>.</td></tr>
+        <tr><th>Export EV media ZIP</th><td>All slides as EV files, a TOC with slide names, a complete <code>PRESENTATION.evstudio</code>, and a readme. Open the project file to restore colors and motion.</td></tr>
+        <tr><th>Export video</th><td>A silent MP4 or WebM of the selected slides, colors, and animations.</td></tr>
+      </tbody></table></div>
+      <p>Studio reconstructs a workflow; it does not run the original DOS executable. Native palette and animation metadata remain unresolved, and newly generated EV files have not been tested in that program. See the <a href="../RECONSTRUCTION.md">reconstruction notes</a> for the evidence and limits.</p>
+    </section>
+
+    <section id="keys">
+      <p class="eyebrow">10 / QUICK REFERENCE</p><h2>Useful keys</h2>
+      <div class="table-wrap"><table><caption>DOS function keys</caption><thead><tr><th>Key</th><th>Action</th><th>Key</th><th>Action</th></tr></thead><tbody>
+        <tr><th><kbd>F1</kbd></th><td>Keyboard help</td><th><kbd>F6</kbd></th><td>Prepare slides</td></tr>
+        <tr><th><kbd>F2</kbd></th><td>Save project</td><th><kbd>F7</kbd></th><td>Create workspace</td></tr>
+        <tr><th><kbd>F3</kbd></th><td>Open project</td><th><kbd>F8</kbd></th><td>Print</td></tr>
+        <tr><th><kbd>F4</kbd></th><td>Open original media</td><th><kbd>F9</kbd></th><td>Palette window</td></tr>
+        <tr><th><kbd>F5</kbd></th><td>Run presentation</td><th><kbd>F10</kbd></th><td>Task menus</td></tr>
+      </tbody></table></div>
+      <div class="table-wrap"><table><caption>Editing keys in either interface</caption><thead><tr><th>Key</th><th>Action</th></tr></thead><tbody>
+        <tr><th><kbd>Ctrl/Cmd</kbd> + <kbd>S</kbd></th><td>Save project</td></tr>
+        <tr><th><kbd>Ctrl/Cmd</kbd> + <kbd>Z</kbd></th><td>Undo</td></tr>
+        <tr><th><kbd>Ctrl/Cmd</kbd> + <kbd>Shift</kbd> + <kbd>Z</kbd></th><td>Redo</td></tr>
+        <tr><th><kbd>Ctrl/Cmd</kbd> + <kbd>C</kbd> / <kbd>X</kbd> / <kbd>V</kbd></th><td>Copy / cut / paste a raster selection</td></tr>
+        <tr><th><kbd>1</kbd>–<kbd>4</kbd></th><td>Select one of the four drawing swatches</td></tr>
+        <tr><th><kbd>Delete</kbd> / <kbd>Backspace</kbd></th><td>Clear the selected region</td></tr>
+        <tr><th><kbd>Esc</kbd></th><td>Cancel a selection or pending placement; dismiss menus and applicable windows. In fullscreen, the browser may handle Esc first.</td></tr>
+      </tbody></table></div>
+      <p>Use Cmd on macOS and Ctrl on Windows or Linux. Editing shortcuts pause while typing in input fields; function keys are specific to DOS mode. For drawing keys, focus the canvas first.</p>
+    </section>
+
+    <section id="help">
+      <p class="eyebrow">11 / TROUBLESHOOTING</p><h2>When something feels stuck</h2>
+      <details><summary>The mouse does nothing in DOS mode.</summary><p>This mode deliberately uses the keyboard. Use Tab, Enter, and the F10 menus. Choose Modern interface or the Quit task to restore mouse interaction without losing your work.</p></details>
+      <details><summary>Fullscreen did not open.</summary><p>Activate Enter full screen with Enter while its button is focused. The browser may deny the request or lack support; Studio shows a message and keeps working in the window. DOS mode and browser fullscreen are separate states.</p></details>
+      <details><summary>A function key changes brightness or volume.</summary><p>Hold Fn while pressing the function key, or navigate the controls with Tab and Enter. Shortcuts also pause when an input or dialog needs those keys.</p></details>
+      <details><summary>Esc does not close the palette or toolbox.</summary><p>A focused text field or select keeps its own keyboard behavior. Tab to Close window [Esc] and press Enter. The browser may also consume the first Esc to exit fullscreen.</p></details>
+      <details><summary>An imported picture has unexpected colors.</summary><p>Choose a palette family and background manually. The original palette records have not been confirmed; Studio stores your chosen interpretation in the project file.</p></details>
+      <details><summary>I cannot edit text or chart data already placed on a slide.</summary><p>Placed text and charts are raster pixels. Undo the placement and create it again, or select and clear the old area before replacing it.</p></details>
+      <details><summary>A motion was cut short.</summary><p>Increase the Auto run interval. For video, enable Extend slides when needed to finish every motion, or increase the fixed seconds per slide.</p></details>
+      <details><summary>MP4 is missing, or a recording stopped.</summary><p>Use one of the formats offered by your browser. Keep the tab visible throughout recording. If the encoder fails, try a smaller size, a lower frame rate, or another available format.</p></details>
+      <details><summary>I opened a project and the picture library is empty.</summary><p>Projects retain their slides and source metadata, but not the entire media-library list. Open the original media again if you need more pictures from it.</p></details>
+      <details><summary>Where are my files?</summary><p>Save and export commands download files through your browser. Check its Downloads list and configured download folder. There is no server copy or automatic recovery of a closed, unsaved session.</p></details>
+      <p class="help-links"><a href="https://github.com/unamanic/execuvision-studio/issues">Report a problem ↗</a><a href="../licenses.html">Licenses &amp; acknowledgments</a><a href="../">Return to Studio ↗</a></p>
+    </section>
+    <footer class="guide-footer">ExecuVision Studio · Independently reconstructed for the web · © 2026 William Witt</footer>
+  </main>
+</div>
+</body>
+</html>

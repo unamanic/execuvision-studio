@@ -1,15 +1,14 @@
 # Publish ExecuVision Studio
 
-This repository is prepared for `unamanic/execuvision-studio`, with the GitHub Pages project URL `https://unamanic.github.io/execuvision-studio/`. These are intended publication targets, not a claim that either has been created.
+The public repository is [unamanic/execuvision-studio](https://github.com/unamanic/execuvision-studio). GitHub Pages serves [Studio](https://unamanic.github.io/execuvision-studio/) and its [illustrated user guide](https://unamanic.github.io/execuvision-studio/guide/).
 
-## First publication
+## Updating the published site
 
-From this repository, after reviewing the prepared files:
+Run `npm test`, commit the reviewed changes, and push `main`. The workflow publishes the built app and guide together. The current repository already uses GitHub Actions as its Pages source.
 
-```sh
-gh repo create unamanic/execuvision-studio --public --source=. --remote=origin
-git push -u origin main
-```
+## Setting up another repository
+
+Create a repository under your own account, add it as the Git remote, and push the `main` branch. Update `package.json` and documented public URLs to match its owner and name.
 
 In the new repository, open **Settings → Pages → Build and deployment → Source** and select **GitHub Actions**. Then open **Actions → Test and deploy GitHub Pages → Run workflow** on `main`. If the first push's deployment ran before Pages was configured, rerun it after selecting the source.
 

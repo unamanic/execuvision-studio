@@ -44,8 +44,6 @@ To our knowledge, no copies of the original ExecuVision software are publicly av
 
 Studio's graphics format is compatible with the available media libraries: raster interoperability has been checked against 268 historical graphics. However, no finished presentations created with the original software are available to us for testing. Original-program acceptance of new files and the palette, object, animation, and complete directory semantics therefore remain unverified.
 
-The recent slide-trailer palette hypothesis has not been adopted as an automatic color decoder. Choose palettes in Studio explicitly. See [reconstruction notes](public/RECONSTRUCTION.md) for sources and limits.
-
 Historical graphics, disk images, manuals, magazine scans, and user projects are not bundled. Open your own local files through the media importer.
 
 **Help fill the gaps:** If you have the original ExecuVision software or finished slides or presentations, please [open an issue](https://github.com/unamanic/execuvision-studio/issues/new) to contribute them. These materials would help preserve ExecuVision's history and let us test and improve compatibility with complete presentations.

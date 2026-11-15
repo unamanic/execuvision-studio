@@ -75,3 +75,11 @@ The browser extension host was unavailable, so native Chrome UI was used instead
 - Formatting checks and all 13 standalone suites passed. Rebuilt after final comment-only refinements and repeated the syntax-equivalence and formatting checks. Vendor bytes and generated-worker provenance remain covered by the existing build/release suites.
 - Headless Chromium produced byte-identical modern and actual fullscreen DOS screenshots compared with the published baseline. Serialized demo projects match; fullscreen entry/exit, a synthetic 7z import through the generated worker, and the illustrated-guide link passed without page errors.
 - CSS-aware HTML formatting also produced byte-identical guide and license-page screenshots at 1440 px and 390 px widths. Guide anchors, image loading, troubleshooting expansion, and overflow checks passed.
+
+## Period-inspired startup screen (2026-11-14)
+
+- Added new, editable SVG artwork inspired by the supplied graphics-library title card: the four-color palette, stepped EV medallion, oversized V, central rule, and double-framed caption. The artwork identifies Studio as an independent reconstruction and does not bundle the reference image.
+- The splash appears while deferred scripts load, then becomes a native modal. Enter/Space/click opens modern mode; D, Tab/Enter, or its button opens DOS mode; Esc opens modern mode. No countdown, persistence, or automatic fullscreen request. Startup keys are captured before editor controllers, including when a Tab cycle temporarily leaves focus on the document body.
+- Headless Chromium checks passed at 1600 × 1000, 390 × 844, 844 × 390, and 320 × 568 with no overflow. Desktop, portrait, and landscape captures were visually inspected. Both entry paths and keyboard focus passed; project bytes, dirty state, undo history, tool, and color remained unchanged. Actual fullscreen entry/exit worked after starting in DOS mode. No JavaScript page errors occurred.
+- Confirmed visibility with a deferred core script deliberately held pending, promotion to modal after initialization, and direct `file://` startup with local artwork. Updated the usage/development guides and screenshot instructions.
+- Formatting and all 13 standalone suites passed. Added an SVG content-type regression check after the preview server initially served the artwork as an undecodable octet stream.

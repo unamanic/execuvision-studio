@@ -1,0 +1,122 @@
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  viewBox="0 0 640 400"
+  role="img"
+  aria-labelledby="title desc"
+>
+  <title id="title">ExecuVision Studio</title>
+  <desc id="desc">
+    A cyan, magenta, black, and white title card inspired by the original graphics-library
+    packaging. Create. Prepare. Present.
+  </desc>
+
+  <!-- New vector artwork, not a copy of an original media-library raster.
+       The 640 x 400 composition keeps the reference's 8:5 screen proportions. -->
+  <rect width="640" height="400" fill="#55ffff" />
+  <g shape-rendering="crispEdges">
+    <!-- The center rule continues behind the medallion, title, and caption. -->
+    <path d="M315 0h11v400h-11z" fill="#ff55ff" />
+    <path d="M317 0h7v400h-7z" fill="#fff" />
+    <path d="M319 0h3v400h-3z" fill="#000" />
+
+    <!-- Stepped medallion: an EV monogram drawn with simple strokes. -->
+    <path
+      d="M304 9h32v3h8v5h6v6h5v9h3v15h-3v9h-5v6h-6v4h-8v3h-32v-3h-8v-4h-6v-6h-5v-9h-3V32h3v-9h5v-6h6v-5h8z"
+      fill="#000"
+    />
+    <path
+      d="M305 11h30v3h8v5h6v6h4v9h3v11h-3v9h-4v6h-6v4h-8v3h-30v-3h-8v-4h-6v-6h-4v-9h-3V34h3v-9h4v-6h6v-5h8z"
+      fill="#fff"
+    />
+    <path
+      d="M310 23h15m-15 0v25m0-13h12m-12 13h15m-2-15 10 24 10-24m-24 0h8m12 0h8"
+      fill="none"
+      stroke="#ff55ff"
+      stroke-width="2"
+    />
+
+    <!-- White wordmark field, edged in the four-color CGA palette. -->
+    <path d="M0 78h640v165H0z" fill="#ff55ff" />
+    <path d="M0 80h640v161H0z" fill="#fff" />
+    <path d="M0 83h640v3H0z" fill="#000" />
+  </g>
+
+  <!-- Fixed text lengths keep the wordmark aligned across local serif fonts. -->
+  <g fill="#000" font-family="'Times New Roman', 'Liberation Serif', serif" font-size="50">
+    <text x="83" y="177" textLength="209" lengthAdjust="spacingAndGlyphs">EXECU</text>
+    <text x="365" y="177" textLength="192" lengthAdjust="spacingAndGlyphs">ISION</text>
+  </g>
+  <!-- Oversized V: black serifs and shadow, a white inset, and magenta face. -->
+  <g shape-rendering="crispEdges">
+    <path d="M278 99h36v3h-8l32 76 32-76h-9v-3h27v3h-9l-42 96h-4l-42-96h-13z" fill="#000" />
+    <path d="M293 99h16v3h-6l34 80 34-80h-6v-3h13l-42 93z" fill="#fff" />
+    <path d="M296 99h14v3h-6l33 77 33-77h-6v-3h10l-38 88z" fill="#ff55ff" />
+  </g>
+  <text
+    x="379"
+    y="126"
+    fill="#000"
+    font-family="'Courier New', monospace"
+    font-size="17"
+    letter-spacing="4"
+  >
+    EST. 1983
+  </text>
+  <text
+    x="320"
+    y="225"
+    text-anchor="middle"
+    fill="#000"
+    font-family="'Courier New', monospace"
+    font-size="27"
+    font-weight="bold"
+    letter-spacing="12"
+  >
+    STUDIO
+  </text>
+
+  <!-- Framed collection-label motif, adapted to the editor's three tasks. -->
+  <g shape-rendering="crispEdges">
+    <path d="M111 271h418v62H111z" fill="#fff" />
+    <path d="M114 274h412v56H114z" fill="#ff55ff" />
+    <path d="M116 276h408v52H116z" fill="#000" />
+    <path d="M119 279h402v46H119z" fill="none" stroke="#fff" stroke-width="1" />
+    <path d="M44 258h2v12h-2zm-5 5h12v2h-12zm557 79h2v16h-2zm-7 7h16v2h-16z" fill="#fff" />
+  </g>
+  <g fill="#55ffff" text-anchor="middle" font-family="'Courier New', monospace" font-weight="bold">
+    <text x="320" y="299" font-size="20" letter-spacing="2">CREATE. PREPARE. PRESENT.</text>
+    <text x="320" y="318" font-size="12" letter-spacing="2">
+      YOUR NEXT BIG IDEA, IN FOUR COLORS.
+    </text>
+  </g>
+
+  <!-- Contemporary attribution replaces the historical publisher/copyright line. -->
+  <g shape-rendering="crispEdges">
+    <path d="M0 357h640v27H0z" fill="#ff55ff" />
+    <path d="M2 359h636v23H2z" fill="#fff" />
+    <path d="M0 384h640v16H0z" fill="#000" />
+  </g>
+  <text
+    x="320"
+    y="377"
+    text-anchor="middle"
+    fill="#ff55ff"
+    font-family="'Courier New', monospace"
+    font-size="18"
+    font-weight="bold"
+    letter-spacing="3"
+  >
+    PRESENTATION GRAPHICS, REIMAGINED.
+  </text>
+  <text
+    x="320"
+    y="396"
+    text-anchor="middle"
+    fill="#fff"
+    font-family="'Courier New', monospace"
+    font-size="9"
+    letter-spacing="1"
+  >
+    EXECUVISION STUDIO · AN INDEPENDENT RECONSTRUCTION · 2026
+  </text>
+</svg>

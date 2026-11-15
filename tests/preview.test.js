@@ -44,6 +44,11 @@ const assert = require('node:assert/strict'),
     assert.equal(head.status, 200);
     assert.equal((await head.arrayBuffer()).byteLength, 0);
     assert.ok(Number(head.headers.get('content-length')) > 0);
+    // SVG must be served as an image; browsers cannot decode octet-stream SVGs.
+    const splash = await fetch(url + 'splash.svg');
+    assert.equal(splash.status, 200);
+    assert.equal(splash.headers.get('content-type'), 'image/svg+xml');
+    assert.match(await splash.text(), /<svg\b/);
     assert.equal((await fetch(url + 'missing')).status, 404);
     assert.equal((await fetch(url, { method: 'POST' })).status, 405);
     assert.equal((await fetch(url + '%')).status, 400);

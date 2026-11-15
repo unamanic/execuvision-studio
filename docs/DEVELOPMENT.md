@@ -7,6 +7,7 @@ Edit `src/`, then run `npm run build`. The complete standalone application is ge
 | Source | Responsibility |
 | --- | --- |
 | [`src/index.html`](../src/index.html) | Editor controls, dialogs, canvas, and script loading order. |
+| [`src/splash.svg`](../src/splash.svg), [`src/splash.css`](../src/splash.css), and [`src/splash.js`](../src/splash.js) | Editable title artwork, responsive splash layout, and startup interface selection. The modal keeps startup input out of the editor; dismissal never changes project data. |
 | [`src/style.css`](../src/style.css) | Modern interface layout and appearance. |
 | [`src/app.js`](../src/app.js) | Shared project state, undo, drawing controls, library import, slide ordering, motion editing, and presentation UI. |
 | [`src/core.js`](../src/core.js) | Pure raster operations, text and charts, EV/PIX writing, disk extraction, motion rendering, project serialization, and synthetic demo. |

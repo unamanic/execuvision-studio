@@ -4,6 +4,8 @@
 
 ## The two interfaces
 
+At the opening title screen, press **Enter** for the modern workspace or **D** for the keyboard-operated DOS interface. You can also click either button, or use Tab and Enter to choose. Esc opens the modern editor. The splash appears on each page load, with no countdown or automatic dismissal.
+
 ![Modern workspace with tools, canvas, picture library, motion controls, and slide directory](../public/guide/images/modern-interface.png)
 
 *Modern interface: mouse-operated drawing with controls beside the canvas.*

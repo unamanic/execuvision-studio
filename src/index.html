@@ -11,6 +11,7 @@
     <!-- The DOS stylesheet intentionally overrides the shared modern controls. -->
     <link rel="stylesheet" href="style.css" />
     <link rel="stylesheet" href="dos-mode.css" />
+    <link rel="stylesheet" href="splash.css" />
     <!-- Classic deferred scripts execute in this order: codecs, core, video, UI.
          The build generates sevenzip-assets.js; keep it before the worker bridge. -->
     <script defer src="execuvision.js"></script>
@@ -21,8 +22,24 @@
     <script defer src="video.js"></script>
     <script defer src="app.js"></script>
     <script defer src="dos-mode.js"></script>
+    <script defer src="splash.js"></script>
   </head>
   <body>
+    <!-- Visible immediately, then promoted to a native modal after initialization.
+         Startup input stays out of the project. Edit the artwork in splash.svg. -->
+    <dialog id="splash" open aria-labelledby="splashHeading" aria-describedby="splashHint">
+      <div class="splash-screen">
+        <h1 id="splashHeading" class="splash-heading">Welcome to ExecuVision Studio</h1>
+        <img class="splash-art" src="splash.svg" width="640" height="400" alt="" />
+        <div class="splash-actions">
+          <button id="splashModern" autofocus>
+            <span class="splash-key">[ENTER]</span>Modern interface
+          </button>
+          <button id="splashDos"><span class="splash-key">[D]</span>DOS interface</button>
+        </div>
+        <p id="splashHint" class="splash-hint">Press Enter for modern, or D for DOS.</p>
+      </div>
+    </dialog>
     <!-- Stable control IDs connect app.js and the DOS command adapter. Both
          interfaces edit the same presentation; avoid duplicating action handlers. -->
     <header class="masthead">

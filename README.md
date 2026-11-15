@@ -10,6 +10,8 @@ It includes a modern workspace and a keyboard-operated DOS-style interface. File
 
 The guide includes screenshots of the modern workspace and fullscreen DOS mode, plus drawing, chart, animation, presentation, and saving instructions. It is also available through **Field guide → Read the illustrated user guide** in the app.
 
+The opening splash screen takes its cues from the original graphics-library title cards. Press **Enter** for the modern editor or **D** for the DOS interface, or click either button.
+
 ## Try it locally
 
 Install Node.js 24 or newer, then build and preview the app:

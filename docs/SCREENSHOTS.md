@@ -14,4 +14,4 @@ Before the DOS captures, browser checks confirmed `document.fullscreenElement ==
 
 The fullscreen screenshot verifies the browser Fullscreen API in headless Chromium. It does not imply every desktop browser or embedded frame will allow fullscreen. The modern image is a full-page capture; the DOS image is a fullscreen viewport capture. Images are saved directly as PNGs and can be opened at their original resolution from the guide.
 
-To refresh them, use the same built-in title slide in a fresh browser context, capture the modern page, enter DOS mode, activate Enter full screen with the keyboard, verify fullscreen state, and capture the viewport. Press F9 for the palette detail. Keep screenshot tooling outside the app's runtime dependencies.
+To refresh them, use the same built-in title slide in a fresh browser context. Dismiss the opening splash with Enter, capture the modern page, enter DOS mode, activate Enter full screen with the keyboard, verify fullscreen state, and capture the viewport. Press F9 for the palette detail. Keep screenshot tooling outside the app's runtime dependencies.

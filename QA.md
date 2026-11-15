@@ -83,3 +83,9 @@ The browser extension host was unavailable, so native Chrome UI was used instead
 - Headless Chromium checks passed at 1600 × 1000, 390 × 844, 844 × 390, and 320 × 568 with no overflow. Desktop, portrait, and landscape captures were visually inspected. Both entry paths and keyboard focus passed; project bytes, dirty state, undo history, tool, and color remained unchanged. Actual fullscreen entry/exit worked after starting in DOS mode. No JavaScript page errors occurred.
 - Confirmed visibility with a deferred core script deliberately held pending, promotion to modal after initialization, and direct `file://` startup with local artwork. Updated the usage/development guides and screenshot instructions.
 - Formatting and all 13 standalone suites passed. Added an SVG content-type regression check after the preview server initially served the artwork as an undecodable octet stream.
+
+## Historical crest refinement (2026-11-14)
+
+- Replaced the simplified block-letter EV with editable SVG paths following the supplied crest's curled E, interwoven V, finishing flourish, and fine oval contour. The source documents its 37 × 29 pixel grid; the vertical rule now uses the reference proportions.
+- Compared all 1,073 rendered crest pixel positions with the Maps & Regions title raster using the cyan/magenta palette shown in the reference: every position matched. Inspected the actual splash and enlarged crest in headless Chromium; the SVG loaded without page errors.
+- Formatting and distribution checks passed. This revision changes artwork only; editor behavior is unchanged.
